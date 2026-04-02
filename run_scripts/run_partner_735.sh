@@ -1,7 +1,7 @@
 #!/bin/bash
-LOG=/data/huanghao/OHOS5
-ROOT=/data/huanghao/OHOS5/ohos5
-IMAGES=/data/huanghao/OHOS5/images
+LOG=/data/<user>/OHOS5
+ROOT=/data/<user>/OHOS5/ohos5
+IMAGES=/data/<user>/OHOS5/images
 
 echo "[OHOS5][735] apply 开始"
 cd $ROOT/common_patch

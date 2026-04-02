@@ -32,9 +32,9 @@ type: project
 
 ### Step 1：重建 730（already started 2026-03-25）
 ```bash
-# apply 已在后台启动，日志：/home/wuhan/OHOS3/apply_730_for_combined.log
+# apply 已在后台启动，日志：/home/<user>/OHOS3/apply_730_for_combined.log
 # apply 完成后：
-cd /home/wuhan/OHOS3/ohos5
+cd /home/<user>/OHOS3/ohos5
 ./build.sh --product-name mp_hi3781v730 --patch   # 日志：build_patch_730_combined.log
 ./build.sh --product-name mp_hi3781v730 --cache   # 日志：build_cache_730_combined.log
 ```
@@ -47,7 +47,7 @@ python3 transform_sdk.py --product mp_hi3781v730 --skip-pack
 
 ### Step 3：从现有 735 tar.gz 补充 device/shaolingun 和 vendor/mp_hi3781v735
 ```bash
-cd /home/wuhan/OHOS3
+cd /home/<user>/OHOS3
 tar -zxf R200X_V730R001C10SPC003TB020_Software_Ohos5_Base-package.tar.gz \
     "./ohos5/device/shaolingun" \
     "./ohos5/vendor/hisilicon/mp_hi3781v735"
@@ -55,10 +55,10 @@ tar -zxf R200X_V730R001C10SPC003TB020_Software_Ohos5_Base-package.tar.gz \
 
 ### Step 4：生成合并 tar.gz + partner 脚本
 ```bash
-cd /home/wuhan/OHOS3/ohos5
+cd /home/<user>/OHOS3/ohos5
 python3 transform_sdk.py --product mp_hi3781v730 --extra-products mp_hi3781v735 \
     --skip-source-delete --skip-kernel --skip-patches
-# 产出：/home/wuhan/OHOS3/R200X_...tar.gz（含730+735）
+# 产出：/home/<user>/OHOS3/R200X_...tar.gz（含730+735）
 # 产出：common_patch/apply_patches_sdk_partner.sh（多产品版本）
 ```
 
@@ -84,5 +84,5 @@ bash apply_patches_sdk_partner.sh
 
 - ✅ transform_sdk.py 5项变更已写入文件（64026 bytes）
 - ✅ `python3 transform_sdk.py --help` 已显示 `--extra-products` 参数
-- 🔄 apply_patches_sdk.sh 730重建中（/home/wuhan/OHOS3/apply_730_for_combined.log）
+- 🔄 apply_patches_sdk.sh 730重建中（/home/<user>/OHOS3/apply_730_for_combined.log）
 - ⏳ 待完成：730 build → transform → 补充735内容 → 合并打包 → OHOS2验证

@@ -7,12 +7,12 @@ type: project
 Product: `mp_hi3781v730`
 
 ## 目录（2026-04-01 迁移后）
-- 供应商侧：`/data/huanghao/OHOS3/ohos5`
-- 合作伙伴侧：`/data/huanghao/OHOS2/ohos5`
+- 供应商侧：`/data/<user>/OHOS3/ohos5`
+- 合作伙伴侧：`/data/<user>/OHOS2/ohos5`
 
 ## 供应商侧（OHOS3）完整流程
 1. `repo init ... && repo sync -c && repo forall -c 'git lfs pull'`
-2. `cd /data/huanghao/OHOS3/ohos5/common_patch && bash apply_patches_sdk.sh`
+2. `cd /data/<user>/OHOS3/ohos5/common_patch && bash apply_patches_sdk.sh`
 3. `./build.sh --product-name mp_hi3781v730 --patch`（**必须先执行 --patch**）
 4. `./build.sh --product-name mp_hi3781v730 --cache`
 5. `python3 transform_sdk.py --product mp_hi3781v730`（生成 partner SDK）
@@ -20,7 +20,7 @@ Product: `mp_hi3781v730`
 ## 合作伙伴侧（OHOS2）完整流程
 1. `repo init ... && repo sync -c && repo forall -c 'git lfs pull'`
 2. 将 transform_sdk.py 生成的 tar.gz 和 apply_patches_sdk_partner.sh 放入 common_patch/
-3. `cd /data/huanghao/OHOS2/ohos5/common_patch && bash apply_patches_sdk_partner.sh`
+3. `cd /data/<user>/OHOS2/ohos5/common_patch && bash apply_patches_sdk_partner.sh`
 4. `./build.sh --product-name mp_hi3781v730 --patch`（**必须先执行 --patch**）
 5. `./build.sh --product-name mp_hi3781v730 --cache`
 
@@ -33,15 +33,15 @@ Product: `mp_hi3781v730`
 
 ## 供应商镜像参考编译（2026-04-02）
 
-**任务**：串行编译 730 和 735，打包镜像到 `/data/huanghao/OHOS3/images/`
-- 脚本：`/data/huanghao/OHOS3/run_vendor_build.sh`
+**任务**：串行编译 730 和 735，打包镜像到 `/data/<user>/OHOS3/images/`
+- 脚本：`/data/<user>/OHOS3/run_vendor_build.sh`
 - 730 镜像：`out/wudangstick/packages/phone/images/` → `images/730.tar.gz`
 - 735 镜像：`out/shaolingun/packages/phone/images/` → `images/735.tar.gz`
 - 流程：apply → build --patch --cache → build --cache → tar -czf
 
 **apply 脚本优化**（详见 project_prebuilts_cache.md）：
 - 哨兵文件 `.prebuilts_done`：同环境 prebuilts 只下载一次（730 完成后 735 跳过）
-- symlink `/data/huanghao/prebuilts_cache`：新环境只解压不下载（节省 ~1.5h）
+- symlink `/data/<user>/prebuilts_cache`：新环境只解压不下载（节省 ~1.5h）
 
 ## transform_sdk.py 迭代修复工作流（2026-04-02）
 
@@ -50,10 +50,10 @@ OHOS3（vendor 730）和 OHOS4（vendor 735）已有完整编译产物（out/ �
 
 ```bash
 # 730
-python3 transform_sdk.py --product mp_hi3781v730 --ohos-root /data/huanghao/OHOS3/ohos5
+python3 transform_sdk.py --product mp_hi3781v730 --ohos-root /data/<user>/OHOS3/ohos5
 
 # 735  
-python3 transform_sdk.py --product mp_hi3781v735 --ohos-root /data/huanghao/OHOS4/ohos5
+python3 transform_sdk.py --product mp_hi3781v735 --ohos-root /data/<user>/OHOS4/ohos5
 ```
 
 然后将生成的新 tar.gz 分发给 OHOS2/OHOS5 验证，大幅缩短迭代周期。
@@ -70,4 +70,4 @@ python3 transform_sdk.py --product mp_hi3781v735 --ohos-root /data/huanghao/OHOS
 | `/data/OHOS5/ohos5` | 合作伙伴编译 | 735 |
 
 合作伙伴使用**同一份 tar.gz + 同一个 apply 脚本**编译 730 和 735。
-旧路径 `/data/huanghao/OHOS2` 和 `/data/huanghao/OHOS3` 为历史环境，730 参考镜像保留在 `/data/huanghao/OHOS3/images/`。
+旧路径 `/data/<user>/OHOS2` 和 `/data/<user>/OHOS3` 为历史环境，730 参考镜像保留在 `/data/<user>/OHOS3/images/`。

@@ -5,7 +5,7 @@ type: project
 ---
 
 ## 背景
-旧环境（192.168.67.128）patch 打乱，需要在新环境重头来过，完整走通供应商→合作伙伴全流程验证。
+旧环境（OLD_SERVER）patch 打乱，需要在新环境重头来过，完整走通供应商→合作伙伴全流程验证。
 
 **Why:** 旧环境不干净，验证结果不可信，需要干净环境重新验证 transform_sdk.py 的正确性。
 **How to apply:** 按下方步骤顺序执行，遇到问题记录在"已知问题"中。
@@ -16,19 +16,19 @@ type: project
 
 | 角色 | 地址 | 用户名 | 路径 |
 |---|---|---|---|
-| 旧环境（参考） | 192.168.67.128 | - | //192.168.67.128/ohos/OHOS2 |
-| 新环境（供应商侧） | 192.168.50.88 | wuhan | /home/wuhan/OHOS |
+| 旧环境（参考） | OLD_SERVER | - | //OLD_SERVER/ohos/OHOS2 |
+| 新环境（供应商侧） | BUILD_SERVER | <user> | /home/<user>/OHOS |
 | Windows（操作机） | 本机 | 1 | - |
 
-SSH 连接方式：`ssh -o StrictHostKeyChecking=no wuhan@192.168.50.88`（已配置公钥免密）
+SSH 连接方式：`ssh -o StrictHostKeyChecking=no <user>@BUILD_SERVER`（已配置公钥免密）
 
 ---
 
-## 新环境（192.168.50.88）初始状态
-- ohos5 源码目录：`/home/wuhan/OHOS/ohos5/`（干净，无 device/vendor）
+## 新环境（BUILD_SERVER）初始状态
+- ohos5 源码目录：`/home/<user>/OHOS/ohos5/`（干净，无 device/vendor）
 - common_patch 目录完整：`apply_patches_sdk.sh` / `custom-ohos-patch` / `custom-sdk-vendor-patch` / `other-patches` / `sdk-base-patch`
-- SDK 包：`/home/wuhan/OHOS/ohos5/common_patch/R200X_V730R001C10SPC003TB020_Software_Ohos5_Base-package.tar.gz` 已存在
-- `transform_sdk.py` 已从旧环境拷贝到 `/home/wuhan/OHOS/ohos5/transform_sdk.py` ✅
+- SDK 包：`/home/<user>/OHOS/ohos5/common_patch/R200X_V730R001C10SPC003TB020_Software_Ohos5_Base-package.tar.gz` 已存在
+- `transform_sdk.py` 已从旧环境拷贝到 `/home/<user>/OHOS/ohos5/transform_sdk.py` ✅
 - 磁盘：2TB，已用 860G，剩余 1.1T
 - 内存：125GB
 - Python：3.11.14
@@ -45,11 +45,11 @@ SSH 连接方式：`ssh -o StrictHostKeyChecking=no wuhan@192.168.50.88`（已�
 
 ## 完整执行步骤
 
-### 【供应商侧】在 192.168.50.88 执行
+### 【供应商侧】在 BUILD_SERVER 执行
 
 #### Step 1: 执行 apply_patches_sdk.sh（原版完整版）
 ```bash
-cd /home/wuhan/OHOS/ohos5/common_patch
+cd /home/<user>/OHOS/ohos5/common_patch
 bash apply_patches_sdk.sh
 ```
 - 作用：解压 SDK tar.gz → 恢复 device/ vendor/ → 打所有 patch
@@ -57,18 +57,18 @@ bash apply_patches_sdk.sh
 
 #### Step 2: 完整编译
 ```bash
-cd /home/wuhan/OHOS/ohos5
+cd /home/<user>/OHOS/ohos5
 ./build.sh --product-name mp_hi3781v730 --cache
 ```
 - 状态：待执行
 
 #### Step 3: 执行 transform_sdk.py
 ```bash
-cd /home/wuhan/OHOS/ohos5
+cd /home/<user>/OHOS/ohos5
 python3 transform_sdk.py --product mp_hi3781v730
 ```
-- 产出1：`/home/wuhan/OHOS/R200X_V730R001C10SPC003TB020_Software_Ohos5_Base-package.tar.gz`（partner SDK）
-- 产出2：`/home/wuhan/OHOS/apply_patches_sdk_partner.sh`
+- 产出1：`/home/<user>/OHOS/R200X_V730R001C10SPC003TB020_Software_Ohos5_Base-package.tar.gz`（partner SDK）
+- 产出2：`/home/<user>/OHOS/apply_patches_sdk_partner.sh`
 - 状态：待执行
 
 ### 【合作伙伴侧】另起干净环境验证
@@ -97,10 +97,10 @@ bash apply_patches_sdk_partner.sh
 
 | 脚本 | 位置 |
 |---|---|
-| transform_sdk.py（主脚本） | /home/wuhan/OHOS/ohos5/transform_sdk.py（新环境） |
-| transform_sdk.py（参考） | //192.168.67.128/ohos/OHOS2/ohos5/transform_sdk.py |
-| apply_patches_sdk_partner.sh（参考） | //192.168.67.128/ohos/OHOS2/apply_patches_sdk_partner.sh |
-| restore_transform.sh（参考） | //192.168.67.128/ohos/OHOS2/restore_transform.sh |
+| transform_sdk.py（主脚本） | /home/<user>/OHOS/ohos5/transform_sdk.py（新环境） |
+| transform_sdk.py（参考） | //OLD_SERVER/ohos/OHOS2/ohos5/transform_sdk.py |
+| apply_patches_sdk_partner.sh（参考） | //OLD_SERVER/ohos/OHOS2/apply_patches_sdk_partner.sh |
+| restore_transform.sh（参考） | //OLD_SERVER/ohos/OHOS2/restore_transform.sh |
 
 ---
 

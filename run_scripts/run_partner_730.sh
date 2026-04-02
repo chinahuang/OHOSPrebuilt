@@ -1,7 +1,7 @@
 #!/bin/bash
-LOG=/data/huanghao/OHOS2
-ROOT=/data/huanghao/OHOS2/ohos5
-IMAGES=/data/huanghao/OHOS2/images
+LOG=/data/<user>/OHOS2
+ROOT=/data/<user>/OHOS2/ohos5
+IMAGES=/data/<user>/OHOS2/images
 
 echo '[OHOS2][730] apply 开始'
 cd $ROOT/common_patch

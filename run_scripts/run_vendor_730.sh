@@ -1,7 +1,7 @@
 #!/bin/bash
-LOG=/data/huanghao/OHOS3
-ROOT=/data/huanghao/OHOS3/ohos5
-IMAGES=/data/huanghao/OHOS3/images
+LOG=/data/<user>/OHOS3
+ROOT=/data/<user>/OHOS3/ohos5
+IMAGES=/data/<user>/OHOS3/images
 
 mkdir -p $IMAGES
 

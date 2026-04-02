@@ -13,12 +13,12 @@ type: project
 ps aux | grep -E 'build\.sh|apply_patches|ninja|repo forall' | grep -v grep
 
 # 清理所有 index.lock（被kill的git进程会留下）
-find /data/huanghao/OHOS2/ohos5 -name 'index.lock' -delete
-find /data/huanghao/OHOS5/ohos5 -name 'index.lock' -delete
+find /data/<user>/OHOS2/ohos5 -name 'index.lock' -delete
+find /data/<user>/OHOS5/ohos5 -name 'index.lock' -delete
 # OHOS3/OHOS4 同理
 
 # 确认清理完毕
-find /data/huanghao -name 'index.lock' 2>/dev/null | wc -l  # 应为0
+find /data/<user> -name 'index.lock' 2>/dev/null | wc -l  # 应为0
 ```
 
 **Why:** kill 进程后 git 会留下 index.lock，下次 repo forall 时报错退出。
@@ -27,7 +27,7 @@ find /data/huanghao -name 'index.lock' 2>/dev/null | wc -l  # 应为0
 
 ### 2. 检查 node_modules symlink
 
-**共享缓存位置：** `/data/huanghao/node_modules_cache/`（309MB，独立于 OHOS 目录，删除 OHOS 不影响）
+**共享缓存位置：** `/data/<user>/node_modules_cache/`（309MB，独立于 OHOS 目录，删除 OHOS 不影响）
 
 四个目录均已改为 symlink 指向共享缓存：
 - `developtools/ace_ets2bundle/compiler/node_modules` → `node_modules_cache/ace_ets2bundle/node_modules`（283个包）
@@ -36,18 +36,18 @@ find /data/huanghao -name 'index.lock' 2>/dev/null | wc -l  # 应为0
 ```bash
 # 检查 symlink 是否完好
 for DIR in OHOS2 OHOS3 OHOS4 OHOS5; do
-  echo -n "$DIR ets2bundle: "; ls -la /data/huanghao/$DIR/ohos5/developtools/ace_ets2bundle/compiler/node_modules 2>/dev/null | grep -o '\-> .*'
-  echo -n "$DIR js2bundle:  "; ls -la /data/huanghao/$DIR/ohos5/developtools/ace_js2bundle/ace-loader/node_modules 2>/dev/null | grep -o '\-> .*'
+  echo -n "$DIR ets2bundle: "; ls -la /data/<user>/$DIR/ohos5/developtools/ace_ets2bundle/compiler/node_modules 2>/dev/null | grep -o '\-> .*'
+  echo -n "$DIR js2bundle:  "; ls -la /data/<user>/$DIR/ohos5/developtools/ace_js2bundle/ace-loader/node_modules 2>/dev/null | grep -o '\-> .*'
 done
 ```
 
 **重建 OHOS 目录后恢复 symlink：**
 ```bash
 DIR=OHOS5  # 改为目标目录
-ln -s /data/huanghao/node_modules_cache/ace_ets2bundle/node_modules \
-      /data/huanghao/$DIR/ohos5/developtools/ace_ets2bundle/compiler/node_modules
-ln -s /data/huanghao/node_modules_cache/ace_js2bundle/node_modules \
-      /data/huanghao/$DIR/ohos5/developtools/ace_js2bundle/ace-loader/node_modules
+ln -s /data/<user>/node_modules_cache/ace_ets2bundle/node_modules \
+      /data/<user>/$DIR/ohos5/developtools/ace_ets2bundle/compiler/node_modules
+ln -s /data/<user>/node_modules_cache/ace_js2bundle/node_modules \
+      /data/<user>/$DIR/ohos5/developtools/ace_js2bundle/ace-loader/node_modules
 ```
 
 ---
@@ -57,8 +57,8 @@ ln -s /data/huanghao/node_modules_cache/ace_js2bundle/node_modules \
 ```bash
 for DIR in OHOS2 OHOS3 OHOS4 OHOS5; do
   echo -n "$DIR prebuilts: "
-  ls /data/huanghao/$DIR/ohos5/prebuilts/build-tools 2>/dev/null && echo OK || echo "缺失！"
-  ls /data/huanghao/$DIR/ohos5/prebuilts/.prebuilts_done 2>/dev/null && echo "哨兵: OK" || echo "哨兵: 无"
+  ls /data/<user>/$DIR/ohos5/prebuilts/build-tools 2>/dev/null && echo OK || echo "缺失！"
+  ls /data/<user>/$DIR/ohos5/prebuilts/.prebuilts_done 2>/dev/null && echo "哨兵: OK" || echo "哨兵: 无"
 done
 ```
 
@@ -69,8 +69,8 @@ done
 ### 4. 确认 apply 脚本注释掉 git lfs pull
 
 ```bash
-grep 'git lfs pull' /data/huanghao/OHOS2/ohos5/common_patch/apply_patches_sdk_partner.sh
-grep 'git lfs pull' /data/huanghao/OHOS5/ohos5/common_patch/apply_patches_sdk_partner.sh
+grep 'git lfs pull' /data/<user>/OHOS2/ohos5/common_patch/apply_patches_sdk_partner.sh
+grep 'git lfs pull' /data/<user>/OHOS5/ohos5/common_patch/apply_patches_sdk_partner.sh
 ```
 
 **期望：** 该行应被注释掉（`# repo forall -c "git lfs pull"`）
@@ -82,11 +82,11 @@ grep 'git lfs pull' /data/huanghao/OHOS5/ohos5/common_patch/apply_patches_sdk_pa
 
 ```bash
 # OHOS2 (partner 730)
-ls -lh /data/huanghao/OHOS2/ohos5/common_patch/R200X_V730R001C10SPC003TB020_Software_Ohos5_Base-package.tar.gz
-ls -lh /data/huanghao/OHOS2/ohos5/common_patch/apply_patches_sdk_partner.sh
+ls -lh /data/<user>/OHOS2/ohos5/common_patch/R200X_V730R001C10SPC003TB020_Software_Ohos5_Base-package.tar.gz
+ls -lh /data/<user>/OHOS2/ohos5/common_patch/apply_patches_sdk_partner.sh
 
 # OHOS5 (partner 735) - 同一份 tar.gz symlink
-ls -lh /data/huanghao/OHOS5/ohos5/common_patch/R200X_V730R001C10SPC003TB020_Software_Ohos5_Base-package.tar.gz
+ls -lh /data/<user>/OHOS5/ohos5/common_patch/R200X_V730R001C10SPC003TB020_Software_Ohos5_Base-package.tar.gz
 ```
 
 **期望：** tar.gz 约 1183MB，apply_patches_sdk_partner.sh 约 9KB
@@ -118,25 +118,25 @@ df -h /data
 
 | 路径 | 内容 | 大小 |
 |------|------|------|
-| `/data/huanghao/prebuilts_cache/` | 编译工具链（clang/gcc/node/rust等）| ~4GB |
-| `/data/huanghao/node_modules_cache/ace_ets2bundle/node_modules` | ace_ets2bundle 依赖 | 173MB |
-| `/data/huanghao/node_modules_cache/ace_js2bundle/node_modules` | ace_js2bundle 依赖 | 136MB |
+| `/data/<user>/prebuilts_cache/` | 编译工具链（clang/gcc/node/rust等）| ~4GB |
+| `/data/<user>/node_modules_cache/ace_ets2bundle/node_modules` | ace_ets2bundle 依赖 | 173MB |
+| `/data/<user>/node_modules_cache/ace_js2bundle/node_modules` | ace_js2bundle 依赖 | 136MB |
 
 新建 OHOS 目录后，需要建立两种 symlink：
-1. `ohos5/../openharmony_prebuilts` → `/data/huanghao/prebuilts_cache`（apply 脚本自动建立）
-2. `developtools/ace_*/node_modules` → `/data/huanghao/node_modules_cache/*/node_modules`（手动建立）
+1. `ohos5/../openharmony_prebuilts` → `/data/<user>/prebuilts_cache`（apply 脚本自动建立）
+2. `developtools/ace_*/node_modules` → `/data/<user>/node_modules_cache/*/node_modules`（手动建立）
 
 ## 代码重置方法（需要干净重建时）
 
 ```bash
 # 以 OHOS5 为例
-rm -Rf /data/huanghao/OHOS5/ohos5
-cd /data/huanghao/OHOS5
-tar -xf /data/huanghao/OHOS5/ohos5_2026_03_14.tar.gz
+rm -Rf /data/<user>/OHOS5/ohos5
+cd /data/<user>/OHOS5
+tar -xf /data/<user>/OHOS5/ohos5_2026_03_14.tar.gz
 # 重置后需重新检查上述清单第2、3、4项
 ```
 
-**tar.gz 基线位置：** `/data/huanghao/OHOS5/ohos5_2026_03_14.tar.gz`（55G，2026-03-14）
+**tar.gz 基线位置：** `/data/<user>/OHOS5/ohos5_2026_03_14.tar.gz`（55G，2026-03-14）
 
 ---
 

@@ -13,12 +13,12 @@ type: project
 不会被清理。`prebuilts_download.py` 按文件名（含 MD5）判断是否已下载，存在即跳过。
 
 ## 共享缓存目录
-- 路径：`/data/huanghao/prebuilts_cache/`
+- 路径：`/data/<user>/prebuilts_cache/`
 - 内容：28 个 tar.gz/zip，共 ~4GB（2026-04-02 从 OHOS2 复制）
 - 包含：clang, gcc, node, rust, ark_js, cmake, ninja 等全套构建工具
 
 ## apply_patches_sdk.sh 修改（OHOS3，2026-04-02）
-路径：`/data/huanghao/OHOS3/ohos5/common_patch/apply_patches_sdk.sh`
+路径：`/data/<user>/OHOS3/ohos5/common_patch/apply_patches_sdk.sh`
 
 `clean_workspace()` 中新增两项优化：
 
@@ -37,7 +37,7 @@ fi
 
 ### 2. symlink：openharmony_prebuilts 指向共享缓存
 ```bash
-CACHE_DIR="/data/huanghao/prebuilts_cache"
+CACHE_DIR="/data/<user>/prebuilts_cache"
 PREBUILTS_CACHE="$OHOS_PATH/../openharmony_prebuilts"
 if [ -d "$CACHE_DIR" ] && [ ! -L "$PREBUILTS_CACHE" ]; then
     rm -Rf "$PREBUILTS_CACHE"
@@ -48,14 +48,14 @@ fi
 prebuilts_download.py 发现所有包已存在，只执行解压（约 10-15 分钟），跳过下载。
 
 ## 收尾脚本
-`/data/huanghao/setup_prebuilts_cache.sh`：
+`/data/<user>/setup_prebuilts_cache.sh`：
 当前 730 apply 结束后执行，把 OHOS3 的 openharmony_prebuilts 也替换为 symlink：
 ```bash
-rsync -a /data/huanghao/OHOS3/openharmony_prebuilts/ /data/huanghao/prebuilts_cache/
-rm -Rf /data/huanghao/OHOS3/openharmony_prebuilts
-ln -s /data/huanghao/prebuilts_cache /data/huanghao/OHOS3/openharmony_prebuilts
-rm -Rf /data/huanghao/OHOS2/openharmony_prebuilts
-ln -s /data/huanghao/prebuilts_cache /data/huanghao/OHOS2/openharmony_prebuilts
+rsync -a /data/<user>/OHOS3/openharmony_prebuilts/ /data/<user>/prebuilts_cache/
+rm -Rf /data/<user>/OHOS3/openharmony_prebuilts
+ln -s /data/<user>/prebuilts_cache /data/<user>/OHOS3/openharmony_prebuilts
+rm -Rf /data/<user>/OHOS2/openharmony_prebuilts
+ln -s /data/<user>/prebuilts_cache /data/<user>/OHOS2/openharmony_prebuilts
 ```
 
 ## 效果
@@ -64,5 +64,5 @@ ln -s /data/huanghao/prebuilts_cache /data/huanghao/OHOS2/openharmony_prebuilts
 | 同环境第 2 次 apply（如 730→735） | ~1.5h 下载+解压 | 跳过（哨兵文件） |
 | 新环境首次 apply | ~1.5h 下载+解压 | ~15min 仅解压（共享缓存） |
 
-**How to apply:** 新建 OHOS 工作目录时，确保 `/data/huanghao/prebuilts_cache/` 存在，
+**How to apply:** 新建 OHOS 工作目录时，确保 `/data/<user>/prebuilts_cache/` 存在，
 apply 脚本会自动建立 symlink。若缓存目录不存在则退化为完整下载流程，无副作用。

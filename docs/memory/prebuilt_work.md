@@ -15,18 +15,18 @@ type: project
 
 | 目录 | 角色 | 产品 | 状态 |
 |------|------|------|------|
-| `/data/huanghao/OHOS3/ohos5` | 供应商 | 730 | ✅ 已完成（images/730.tar.gz 725MB） |
-| `/data/huanghao/OHOS4/ohos5` | 供应商 | 735 | ✅ 已完成（images/735.tar.gz 738MB，19:14） |
-| `/data/huanghao/OHOS2/ohos5` | 合作伙伴 | 730 | 🔄 build --patch 进行中（~65%） |
-| `/data/huanghao/OHOS5/ohos5` | 合作伙伴 | 735 | 🔄 apply 清理阶段（repo forall 中） |
+| `/data/<user>/OHOS3/ohos5` | 供应商 | 730 | ✅ 已完成（images/730.tar.gz 725MB） |
+| `/data/<user>/OHOS4/ohos5` | 供应商 | 735 | ✅ 已完成（images/735.tar.gz 738MB，19:14） |
+| `/data/<user>/OHOS2/ohos5` | 合作伙伴 | 730 | 🔄 build --patch 进行中（~65%） |
+| `/data/<user>/OHOS5/ohos5` | 合作伙伴 | 735 | 🔄 apply 清理阶段（repo forall 中） |
 
 **已知问题（2026-04-02）**：
 - OHOS5 被监控脚本启动了两个实例，发生 index.lock 冲突 → 已清理，单实例重启
 - OHOS2 之前因 index.lock 失败过一次 → 已清理 lock 文件重启，目前正常
 
 **运行中的脚本**：
-- OHOS2：`/data/huanghao/OHOS2/run_partner_730_new.sh`（PID 2715000），log：`run_partner_730_new.log`
-- OHOS5：`/data/huanghao/OHOS5/run_partner_735.sh`（PID 3392434），log：`run_partner_735.log`
+- OHOS2：`/data/<user>/OHOS2/run_partner_730_new.sh`（PID 2715000），log：`run_partner_730_new.log`
+- OHOS5：`/data/<user>/OHOS5/run_partner_735.sh`（PID 3392434），log：`run_partner_735.log`
 
 **完成后下一步**：
 对比四目录产物（vendor.img / system.img / bootloader / kernel），分析 transform_sdk.py 中 Phase 7 bootloader/kernel 转换逻辑是否导致 partner build 重新编译了预编译产物。
@@ -50,8 +50,8 @@ type: project
 
 ### Phase 1 结果
 
-**最终 tar.gz**：`/home/wuhan/OHOS3/R200X_V730R001C10SPC003TB020_Software_Ohos5_Base-package.tar.gz`（**1183.8 MB**）
-**Partner 脚本**：`/home/wuhan/OHOS3/ohos5/common_patch/apply_patches_sdk_partner.sh`
+**最终 tar.gz**：`/home/<user>/OHOS3/R200X_V730R001C10SPC003TB020_Software_Ohos5_Base-package.tar.gz`（**1183.8 MB**）
+**Partner 脚本**：`/home/<user>/OHOS3/ohos5/common_patch/apply_patches_sdk_partner.sh`
 
 | 步骤 | 日志 | 结果 |
 |------|------|------|
@@ -64,7 +64,7 @@ type: project
 **Phase 1 中发现并修复的问题**：
 
 - **Bug P1-A**：`0022-fix-display-composer-deps.patch` 因路径含符号链接导致 apply_735 报错退出
-  - 修复：patch 备份移出（`/home/wuhan/OHOS3/0022-fix-display-composer-deps.patch.bak`），transform Phase 8.5 以代码方式处理同一修复
+  - 修复：patch 备份移出（`/home/<user>/OHOS3/0022-fix-display-composer-deps.patch.bak`），transform Phase 8.5 以代码方式处理同一修复
 - **Bug P1-B**：`apply_patches_sdk.sh` 执行 `rm -Rf device/` 清除 730 prebuilts
   - 修复：transform_735 运行前从 tar.gz 提取恢复 device/wudangstick/（写入 run_735_full2.sh 脚本中）
 
@@ -158,10 +158,10 @@ transform_sdk.py 新增：3个 bundled patch 嵌入 tar.gz，apply 脚本自动�
 | build --cache | mp_hi3781v735 | ✅ |
 
 **Partner 产物**：
-- tar.gz：`/home/wuhan/OHOS3/R200X_V730R001C10SPC003TB020_Software_Ohos5_Base-package.tar.gz`（1185.3 MB）
-- 脚本：`/home/wuhan/OHOS3/ohos5/common_patch/apply_patches_sdk_partner.sh`
+- tar.gz：`/home/<user>/OHOS3/R200X_V730R001C10SPC003TB020_Software_Ohos5_Base-package.tar.gz`（1185.3 MB）
+- 脚本：`/home/<user>/OHOS3/ohos5/common_patch/apply_patches_sdk_partner.sh`
 
-**里程碑备份**：`/home/wuhan/backup_combined_730_735_v1.0/`（含 README.txt）
+**里程碑备份**：`/home/<user>/backup_combined_730_735_v1.0/`（含 README.txt）
 
 ---
 
@@ -191,7 +191,7 @@ transform_sdk.py 新增：3个 bundled patch 嵌入 tar.gz，apply 脚本自动�
 
 ## 730 里程碑 v1.0 备份信息
 
-**备份目录**：`/home/wuhan/backup_730_prebuilt_v1.0/`（192.168.50.88）
+**备份目录**：`/home/<user>/backup_730_prebuilt_v1.0/`（BUILD_SERVER）
 
 ```
 backup_730_prebuilt_v1.0/
@@ -214,29 +214,29 @@ backup_730_prebuilt_v1.0/
 
 | 角色 | 地址 | 路径 |
 |------|------|------|
-| 供应商侧 | 192.168.50.88 | /data/huanghao/OHOS3/ohos5 |
-| 合作伙伴侧 | 192.168.50.88 | /data/huanghao/OHOS2/ohos5 |
-| transform_sdk.py | 192.168.50.88 | /data/huanghao/OHOS3/ohos5/transform_sdk.py |
-| 原始 base SDK (730) | 192.168.50.88 | /home/wuhan/sdk/R200X_V730R001C10SPC003TB020_Software_Ohos5_Base-package.tar.gz（只读，1.1G）|
-| partner tar.gz 输出 | 192.168.50.88 | /data/huanghao/OHOS3/R200X_V730R001C10SPC003TB020_Software_Ohos5_Base-package.tar.gz |
-| 备份文件 | 192.168.50.88 | /home/wuhan/erjinzhi/0401/（scripts/ + logs/）|
+| 供应商侧 | BUILD_SERVER | /data/<user>/OHOS3/ohos5 |
+| 合作伙伴侧 | BUILD_SERVER | /data/<user>/OHOS2/ohos5 |
+| transform_sdk.py | BUILD_SERVER | /data/<user>/OHOS3/ohos5/transform_sdk.py |
+| 原始 base SDK (730) | BUILD_SERVER | /home/<user>/sdk/R200X_V730R001C10SPC003TB020_Software_Ohos5_Base-package.tar.gz（只读，1.1G）|
+| partner tar.gz 输出 | BUILD_SERVER | /data/<user>/OHOS3/R200X_V730R001C10SPC003TB020_Software_Ohos5_Base-package.tar.gz |
+| 备份文件 | BUILD_SERVER | /home/<user>/erjinzhi/0401/（scripts/ + logs/）|
 
-**目录变更记录（2026-04-01）**：原 `/home/wuhan/OHOS3` 和 `/home/wuhan/OHOS2` 已迁移至 `/data/huanghao/`，原目录已删除。`/data` 为新增 1.4T 分区（nvme0n1p6），开机自动挂载，所有用户可读写。
+**目录变更记录（2026-04-01）**：原 `/home/<user>/OHOS3` 和 `/home/<user>/OHOS2` 已迁移至 `/data/<user>/`，原目录已删除。`/data` 为新增 1.4T 分区（nvme0n1p6），开机自动挂载，所有用户可读写。
 
 ---
 
 ## 标准操作流程（经过验证）
 
 ### 供应商侧（OHOS3）：
-1. `cd /data/huanghao/OHOS3/ohos5/common_patch && bash apply_patches_sdk.sh`
+1. `cd /data/<user>/OHOS3/ohos5/common_patch && bash apply_patches_sdk.sh`
 2. `./build.sh --product-name mp_hi3781v7XX --patch`
 3. `./build.sh --product-name mp_hi3781v7XX --cache`
 4. `python3 transform_sdk.py --product mp_hi3781v7XX`
-5. `cp /data/huanghao/OHOS3/R200X_...tar.gz /data/huanghao/OHOS2/ohos5/common_patch/`
-6. `cp /data/huanghao/OHOS3/ohos5/common_patch/apply_patches_sdk_partner.sh /data/huanghao/OHOS2/ohos5/common_patch/`
+5. `cp /data/<user>/OHOS3/R200X_...tar.gz /data/<user>/OHOS2/ohos5/common_patch/`
+6. `cp /data/<user>/OHOS3/ohos5/common_patch/apply_patches_sdk_partner.sh /data/<user>/OHOS2/ohos5/common_patch/`
 
 ### 合作伙伴侧（OHOS2）：
-1. `cd /data/huanghao/OHOS2/ohos5/common_patch && bash apply_patches_sdk_partner.sh`（内含 clean_workspace + 白名单修复）
+1. `cd /data/<user>/OHOS2/ohos5/common_patch && bash apply_patches_sdk_partner.sh`（内含 clean_workspace + 白名单修复）
 2. `./build.sh --product-name mp_hi3781v7XX --patch`（**不可跳过**，否则缺 drivers/interface/tvservice/）
 3. `./build.sh --product-name mp_hi3781v7XX --cache`
 

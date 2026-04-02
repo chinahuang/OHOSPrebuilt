@@ -73,7 +73,7 @@ clean_workspace() {
     fi
     repo forall -c "timeout 300 git lfs pull || true"  # with timeout
     # 补充 lfs pull 可能超时未恢复的 node_modules（每次 apply 都同步，确保完整）
-    NM_SRC="/data/huanghao/OHOS2/ohos5"
+    NM_SRC="/data/<user>/OHOS2/ohos5"
     NM_DST="$OHOS_PATH"
     for NM_PATH in         "developtools/ace_js2bundle/ace-loader/node_modules"         "developtools/ace_ets2bundle/compiler/node_modules"         "arkcompiler/ets_frontend/arkguard/node_modules"         "interface/sdk-js/build-tools/node_modules"         "third_party/jsframework/node_modules"         "third_party/parse5/packages/parse5/node_modules"         "third_party/weex-loader/node_modules"; do
         if [ -d "$NM_SRC/$NM_PATH" ]; then
@@ -90,7 +90,7 @@ clean_workspace() {
     else
         rm -Rf "$OHOS_PATH/prebuilts"
         # 确保 openharmony_prebuilts 指向共享缓存，避免重复下载
-        CACHE_DIR="/data/huanghao/prebuilts_cache"
+        CACHE_DIR="/data/<user>/prebuilts_cache"
         PREBUILTS_CACHE="$OHOS_PATH/../openharmony_prebuilts"
         if [ -d "$CACHE_DIR" ] && [ ! -L "$PREBUILTS_CACHE" ]; then
             rm -Rf "$PREBUILTS_CACHE"
