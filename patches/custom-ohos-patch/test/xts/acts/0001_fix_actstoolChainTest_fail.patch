@@ -1,0 +1,24 @@
+diff --git a/commonlibrary/toolchain/libc-test/Test.json b/commonlibrary/toolchain/libc-test/Test.json
+index 7d56d576fd..b95768546d 100644
+--- a/commonlibrary/toolchain/libc-test/Test.json
++++ b/commonlibrary/toolchain/libc-test/Test.json
+@@ -110,6 +110,7 @@
+                 "rm -rf /data/local/tmp/libc-test/gwp_asan_invalid_free_left_test",
+                 "rm -rf /data/local/tmp/libc-test/unittest_hilog_vsnprint",
+                 "rm -rf /data/local/tmp/libc-test/signal",
++                "rm -rf /data/local/tmp/libc-test/yn",
+                 "rm -rf /data/local/tmp/libc-test/clock_nanosleep",
+                 "rm -rf /data/local/tmp/libc-test/pthread_rwlock_rdlock",
+                 "rm -rf /data/local/tmp/libc-test/pthread_cond_timedwait",
+@@ -119,7 +120,10 @@
+                 "rm -rf /data/local/tmp/libc-test/poll_sup",
+                 "rm -rf /data/local/tmp/libc-test/ipc_msg",
+                 "rm -rf /data/local/tmp/libc-test/ipc_sem",
+-                "rm -rf /data/local/tmp/libc-test/ipc_shm"
++                "rm -rf /data/local/tmp/libc-test/ipc_shm",
++                "rm -rf /data/local/tmp/libc-test/splice",
++                "rm -rf /data/local/tmp/libc-test/vmsplice",
++                "rm -rf /data/local/tmp/libc-test/setns"
+             ],
+             "cleanup-apps": true
+         }

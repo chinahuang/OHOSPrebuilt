@@ -1,0 +1,13 @@
+diff --git a/huanglong/BUILD.gn b/huanglong/BUILD.gn
+index e2b375a..48753c8 100644
+--- a/huanglong/BUILD.gn
++++ b/huanglong/BUILD.gn
+@@ -92,7 +92,7 @@ config("public_sdk_config") {
+     "-Wpointer-arith",
+     "-fstack-protector-all",
+     "-fPIC",
+-    "-Werror",
++    #"-Werror",
+     "-Wall",
+   ]
+ }

@@ -1,0 +1,32 @@
+From 16b7833fcdc27f9c4b2b70c9c46a42603fcb7845 Mon Sep 17 00:00:00 2001
+From: 18280382478 <wenbao.dong@td-tech.com>
+Date: Wed, 17 Dec 2025 11:20:30 +0800
+Subject: hisi add hwc dev
+
+---
+ huanglong/bundle.json | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/huanglong/bundle.json b/huanglong/bundle.json
+index 3d1cc48..f303678 100644
+--- a/huanglong/bundle.json
++++ b/huanglong/bundle.json
+@@ -59,6 +59,15 @@
+                         "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/panel/include"
+                     }
+                 },
++                {
++                    "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/gfx2d/source:libuapi_gfx2d",
++                    "header": {
++                        "header_files": [
++                            "uapi_gfx2d.h"
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/gfx2d/include"
++                    }
++                },
+                 {
+                     "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/common/source:libuapi_common",
+                     "header": {
+-- 
+2.34.1
+

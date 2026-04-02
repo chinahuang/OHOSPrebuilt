@@ -1,0 +1,611 @@
+diff --git a/huanglong/BUILD.gn b/huanglong/BUILD.gn
+index b94f18d..1db3f90 100644
+--- a/huanglong/BUILD.gn
++++ b/huanglong/BUILD.gn
+@@ -17,21 +17,48 @@ group("huanglong_group") {
+ 
+ group("huanglong_uapi") {
+   deps = [
+-    "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/memory/source:libuapi_memory",
+-    "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/hdmirx/source:libuapi_hdmirx",
+-    "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/vi/source:libuapi_vi",
+-    "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/hdmitx/source:libuapi_hdmitx",
+     "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/omx/source:omx_group",
+-    "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/tvoshal/source/src:libhal",
+-    "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/slog/source:libslog",
+-    "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/slog/source:libalog",
+     "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/npu/source:npu_group",
++    "$libslog",
++    "$libalog",
++    "$libuapi_memory",
++    "$libhal",
++    "$libuapi_vo",
++    "$libuapi_securec",
++    "$libuapi_ai",
++    "$libuapi_ao",
++    "$libuapi_vi",
++    "$libuapi_panel",
++    "$libuapi_dispmng",
++    "$libuapi_avplay",
++    "$libuapi_hdmitx",
++    "$libuapi_hdmirx",
++    "$libuapi_gpio",
++    "$libuapi_pmoc",
++    "$libuapi_pq",
++    "$libuapi_common",
++    "$libuapi_pdm",
++    "$libuapi_tvd",
++    "$libuapi_otpdata",
++    "$libuapi_pqhdr",
++    "$libuapi_rc",
++    "$libuapi_rm",
++    "$libaudio_codec_group",
++    "$libuapi_pwm",
++    "$libuapi_spi",
++    "$libuapi_adec",
++    "$libuapi_aenc",
++    "$libuapi_venc",
++    "$libvendor_camera",
++    "$libuapi_amp",
++    #"$pq_alg_server",
+   ]
+ }
+ 
+ group("minorimages") {
+   deps = [
+     "//device/soc/hisilicon/huanglong/vendor/huanglong/binary/tee/trustedcore/release:build_trustedcore",
++    "//device/soc/hisilicon/huanglong/vendor/huanglong/minorimages/baseparam:build_baseparam",
+     "//device/soc/hisilicon/huanglong/vendor/huanglong/minorimages/bootargs:build_bootargs",
+     "//device/soc/hisilicon/huanglong/vendor/huanglong/minorimages/deviceinfo:build_deviceinfo",
+     "//device/soc/hisilicon/huanglong/vendor/huanglong/minorimages/logo:build_logo",
+@@ -39,6 +66,22 @@ group("minorimages") {
+   ]
+ }
+ 
++group("build_tools") {
++  deps = [
++    "$sdk_dir/vendor/tools/board/huanglong/pdm:pdmtool",
++    "$sdk_dir/vendor/tools/board/huanglong/xbug:xbugtool",
++  ]
++}
++
++group("build_teec") {
++  deps = [
++    "$sdk_dir/vendor/platform/libteec_vendor/source:libteec_vendor",
++    "$sdk_dir/vendor/platform/libteec_vendor/source:teecd",
++    "$sdk_dir/vendor/platform/libteec_vendor/source:tlogcat",
++    "$sdk_dir/vendor/platform/libteec_vendor/source:teecd_daemon.cfg",
++  ]
++}
++
+ config("public_sdk_config") {
+   include_dirs = [
+     "$securec_include",
+diff --git a/huanglong/bundle.json b/huanglong/bundle.json
+index 338b9aa..3d1cc48 100644
+--- a/huanglong/bundle.json
++++ b/huanglong/bundle.json
+@@ -31,7 +31,8 @@
+                     "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/memory/source:libuapi_memory",
+                     "header": {
+                         "header_files": [
+-                            "uapi_memory.h"
++                            "uapi_memory.h",
++                            "mpi_memory_ext.h"
+                         ],
+                         "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/memory/include"
+                     }
+@@ -41,7 +42,9 @@
+                     "header": {
+                         "header_files": [
+                             "uapi_disp.h",
+-                            "uapi_win.h"
++                            "uapi_win.h",
++                            "mpi_disp_ext.h",
++                            "mpi_win_ext.h"
+                         ],
+                         "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/vo/include"
+                     }
+@@ -99,314 +102,280 @@
+                     "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/gpio/source:libuapi_gpio",
+                     "header": {
+                         "header_files": [
+-                            "uapi_gpio.h"
++                            "uapi_gpio.h",
++                            "mpi_gpio_ext.h"
+                         ],
+                         "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/gpio/include"
+-                    
+-                    }
+-                },
+-                {
+-                  "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/pwm/source:libuapi_pwm",
+-                  "header": {
+-                    "header_files": [
+-                      "uapi_pwm.h"
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/pwm/include"
+-                  }
+-                },
+-                {
+-                  "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/lsadc/source:libuapi_lsadc",
+-                  "header": {
+-                    "header_files": [
+-                      "uapi_lsadc.h"
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/lsadc/include"
+-                  }
+-                },
+-                {
+-                  "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/spi/source:libuapi_spi",
+-                  "header": {
+-                    "header_files": [
+-                      "uapi_spi.h"
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/spi/include"
+-                  }
+-                },
+-                {
+-                  "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/gpio/source:libuapi_gpio",
+-                  "header": {
+-                    "header_files": [
+-                      "uapi_gpio.h"
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/gpio/include"
+-                  }
+-                },
+-                {
+-                  "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/otp/basic/source:libuapi_otpbasic",
+-                  "header": {
+-                    "header_files": [
+-                      "uapi_otp.h"
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/otp/basic/include"
+-                  }
+-                },
+-                {
+-                  "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/i2c/source:libuapi_i2c",
+-                  "header": {
+-                    "header_files": [
+-                      "uapi_i2c.h"
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/i2c/include"
+-                  }
+-                },
+-                {
+-                  "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/uart/source:libuapi_uart",
+-                  "header": {
+-                    "header_files": [
+-                      "uapi_uart.h"
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/uart/include"
+-                  }
+-                },
+-                {
+-                "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/ir/source:libuapi_ir",
+-                "header": {
+-                  "header_files": [
+-                    "uapi_ir.h"
+-                  ],
+-                  "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/ir/include"
+-                  }
+-                },
+-                {
+-                "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/wdg/source:libuapi_wdg",
+-                "header": {
+-                  "header_files": [
+-                    "uapi_wdg.h"
+-                  ],
+-                  "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/wdg/include"
+-                }
++                    }
++                },
++                {
++                    "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/pwm/source:libuapi_pwm",
++                    "header": {
++                        "header_files": [
++                            "uapi_pwm.h"
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/pwm/include"
++                    }
++                },
++                {
++                    "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/lsadc/source:libuapi_lsadc",
++                    "header": {
++                        "header_files": [
++                            "uapi_lsadc.h"
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/lsadc/include"
++                    }
++                },
++                {
++                    "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/spi/source:libuapi_spi",
++                    "header": {
++                        "header_files": [
++                            "uapi_spi.h"
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/spi/include"
++                    }
++                },
++                {
++                    "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/otp/basic/source:libuapi_otpbasic",
++                    "header": {
++                        "header_files": [
++                            "uapi_otp.h"
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/otp/basic/include"
++                    }
++                },
++                {
++                    "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/i2c/source:libuapi_i2c",
++                    "header": {
++                        "header_files": [
++                            "uapi_i2c.h"
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/i2c/include"
++                    }
++                },
++                {
++                    "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/uart/source:libuapi_uart",
++                    "header": {
++                        "header_files": [
++                            "uapi_uart.h"
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/uart/include"
++                    }
++                },
++                {
++                    "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/wdg/source:libuapi_wdg",
++                    "header": {
++                        "header_files": [
++                            "uapi_wdg.h"
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/wdg/include"
++                    }
+                 },
+                 {
+                     "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/avplay/source:libuapi_avplay",
+                     "header": {
+-                    "header_files": [
+-                        "uapi_avplay.h"
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/avplay/include"
++                        "header_files": [
++                            "uapi_avplay.h",
++                            "mpi_avplay_ext.h",
++                            "mpi_sync_ext.h"
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/avplay/include"
+                     }
+                 },
+                 {
+                     "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/demux/source:libuapi_demux",
+                     "header": {
+-                    "header_files": [
+-                        "uapi_demux.h",
+-                        "uapi_descrambler.h"
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/demux/include"
++                        "header_files": [
++                            "uapi_demux.h",
++                            "uapi_descrambler.h"
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/demux/include"
+                     }
+                 },
+                 {
+                     "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/ssm/source:libuapi_ssm",
+                     "header": {
+-                    "header_files": [
+-                        "uapi_ssm.h"
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/ssm/include"
++                        "header_files": [
++                            "uapi_ssm.h"
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/ssm/include"
+                     }
+                 },
+                 {
+                     "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/ao/source:libuapi_ao",
+                     "header": {
+-                    "header_files": [
+-                        "mpi_ao_ext.h",
+-                        "uapi_aef.h",
+-                        "uapi_sound.h"
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/ao/include"
++                        "header_files": [
++                            "mpi_ao_ext.h",
++                            "uapi_aef.h",
++                            "uapi_sound.h"
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/ao/include"
+                     }
+                 },
+                 {
+                     "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/adec/source:libuapi_adec",
+                     "header": {
+-                    "header_files": [
+-                        "mpi_adec_ext.h"
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/adec/include"
++                        "header_files": [
++                            "mpi_adec_ext.h"
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/adec/include"
+                     }
+                 },
+                 {
+                     "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/aenc/source:libuapi_aenc",
+                     "header": {
+-                    "header_files": [
+-                        "uapi_aenc.h",
+-                        "mpi_aenc_ext.h"
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/aenc/include"
++                        "header_files": [
++                            "uapi_aenc.h",
++                            "mpi_aenc_ext.h"
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/aenc/include"
+                     }
+                 },
+                 {
+                     "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/amp/source:libuapi_amp",
+                     "header": {
+-                    "header_files": [
+-                        "uapi_amp.h"
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/amp/include"
++                        "header_files": [
++                            "uapi_amp.h"
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/amp/include"
+                     }
+                 },
+                 {
+                     "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/sif/source:libuapi_sif",
+                     "header": {
+-                    "header_files": [
+-                        "uapi_sif.h",
+-                        "mpi_sif_ext.h"
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/sif/include"
++                        "header_files": [
++                            "uapi_sif.h",
++                            "mpi_sif_ext.h"
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/sif/include"
+                     }
+                 },
+                 {
+                     "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/frontend/source:libuapi_frontend",
+                     "header": {
+-                    "header_files": [
+-                        "uapi_frontend.h"
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/frontend/include"
++                        "header_files": [
++                            "uapi_frontend.h"
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/frontend/include"
+                     }
+                 },
+                 {
+                     "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/ai/source:libuapi_ai",
+                     "header": {
+-                    "header_files": [
+-                        "uapi_ai.h"
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/ai/include"
++                        "header_files": [
++                            "uapi_ai.h"
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/ai/include"
+                     }
+                 },
+                 {
+                     "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/dispmng/source:libuapi_dispmng",
+                     "header": {
+-                    "header_files": [
+-                        "uapi_svr_cec.h",
+-                        "uapi_svr_dispmng.h"
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/dispmng/include"
++                        "header_files": [
++                            "uapi_svr_cec.h",
++                            "uapi_svr_dispmng.h"
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/dispmng/include"
+                     }
+                 },
+                 {
+                     "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/hdmitx/source:libuapi_hdmitx",
+                     "header": {
+-                    "header_files": [
+-                        "uapi_hdmitx.h"
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/hdmitx/include"
+-                    }
+-                },
+-                {
+-                    "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/i2c/source:libuapi_i2c",
+-                    "header": {
+-                    "header_files": [
+-                        "uapi_i2c.h"
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/i2c/include"
++                        "header_files": [
++                            "uapi_hdmitx.h"
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/hdmitx/include"
+                     }
+                 },
+                 {
+                     "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/cipher/source:libuapi_cipher",
+                     "header": {
+-                    "header_files": [
+-                        "uapi_cipher.h"
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/cipher/include"
++                        "header_files": [
++                            "uapi_cipher.h"
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/cipher/include"
+                     }
+                 },
+                 {
+                     "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/venc/source:libuapi_venc",
+                     "header": {
+-                    "header_files": [
+-                        "uapi_venc.h"
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/venc/include"
++                        "header_files": [
++                            "uapi_venc.h"
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/venc/include"
+                     }
+                 },
+                 {
+                     "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/klad/source:libuapi_klad",
+                     "header": {
+-                    "header_files": [
+-                        "uapi_klad.h"
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/klad/include"
++                        "header_files": [
++                            "uapi_klad.h"
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/klad/include"
+                     }
+                 },
+                 {
+                     "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/keyslot/source:libuapi_keyslot",
+                     "header": {
+-                    "header_files": [
+-                        "uapi_keyslot.h"
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/keyslot/include"
+-                    }
+-                },
+-                {
+-                    "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/memory/source:libuapi_memory",
+-                    "header": {
+-                    "header_files": [
+-                        "uapi_memory.h"
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/memory/include"
++                        "header_files": [
++                            "uapi_keyslot.h"
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/keyslot/include"
+                     }
+                 },
+                 {
+                     "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/hdmirx/source:libuapi_hdmirx",
+                     "header": {
+-                    "header_files": [
+-                        "uapi_hdmirx.h"
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/hdmirx/include"
++                        "header_files": [
++                            "uapi_hdmirx.h"
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/hdmirx/include"
+                     }
+                 },
+                 {
+                     "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/pq/source:libuapi_pq",
+                     "header": {
+-                    "header_files": [
+-                        "uapi_pq.h"
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/pq/include"
++                        "header_files": [
++                            "uapi_pq.h"
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/pq/include"
+                     }
+                 },
+                 {
+                     "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/vi/source:libuapi_vi",
+                     "header": {
+-                    "header_files": [
+-                        "uapi_vi.h"
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/vi/include"
++                        "header_files": [
++                            "uapi_vi.h"
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/vi/include"
+                     }
+                 },
+                 {
+                     "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/rm/source:libuapi_rm",
+                     "header": {
+-                    "header_files": [
+-                        "uapi_rm.h"
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/rm/include"
+-		            }
+-		        },
++                        "header_files": [
++                            "uapi_rm.h"
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/rm/include"
++                    }
++                },
+                 {
+                     "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/vdec/source:libuapi_vdec",
+                     "header": {
+-                    "header_files": [
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/vdec/include"
++                        "header_files": [
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/vdec/include"
+                     }
+                 },
+                 {
+                     "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/gfx2d/source:libuapi_gfx2d",
+                     "header": {
+-                    "header_files": [
+-                    ],
+-                    "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/gfx2d/include"
++                        "header_files": [
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/gfx2d/include"
+                     }
+                 },
+-		        {
++                {
+                     "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/tvoshal/source/src:libhal",
+                     "header": {
+                         "header_files": [
+@@ -445,6 +414,24 @@
+                         ],
+                         "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/tvoshal/include/include"
+                     }
++                },
++                {
++                    "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/tvd/source:libuapi_tvd",
++                    "header": {
++                        "header_files": [
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/tvd/include"
++                    }
++                },
++                {
++                    "name": "//device/soc/hisilicon/huanglong/vendor/platform/secure_c/source:libuapi_securec",
++                    "header": {
++                        "header_files": [
++                            "securec.h",
++                            "securectype.h"
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/platform/secure_c/include"
++                    }
+                 }
+             ],
+             "test": []

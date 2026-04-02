@@ -1,0 +1,21 @@
+
+# 编译产物
+*.tar.gz
+*.img
+*.bin
+*.so
+*.ko
+out/
+
+# 日志
+*.log
+
+# 临时文件
+*.bak
+*.tmp
+*.pyc
+__pycache__/
+
+# 系统文件
+.DS_Store
+Thumbs.db

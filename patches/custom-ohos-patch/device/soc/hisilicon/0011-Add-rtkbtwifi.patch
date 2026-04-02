@@ -1,0 +1,27 @@
+diff --git a/huanglong/BUILD.gn b/huanglong/BUILD.gn
+index 94e2638..33a56a7 100644
+--- a/huanglong/BUILD.gn
++++ b/huanglong/BUILD.gn
+@@ -8,6 +8,8 @@ group("huanglong_group") {
+     "//device/soc/hisilicon/huanglong/vendor/huanglong/bootloader/build:build_bootloader",
+     "//device/soc/hisilicon/huanglong/vendor/huanglong/linux/scripts/ohos:build_kernel",
+     "//device/soc/hisilicon/huanglong/vendor/huanglong/linux/scripts/ohos:eth_gmac_modules",
++    "//device/soc/hisilicon/huanglong/vendor/huanglong/linux/scripts/ohos:rtk_bt",
++    "//device/soc/hisilicon/huanglong/vendor/huanglong/linux/scripts/ohos:rtk_wifi",
+     ":huanglong_uapi",
+     ":minorimages",
+     "binary:huanglong_binary",
+
+diff --git a/huanglong/bundle.json b/huanglong/bundle.json
+index 9fb8ea5..81c4eba 100644
+--- a/huanglong/bundle.json
++++ b/huanglong/bundle.json
+@@ -9,7 +9,7 @@
+         "name": "device_soc_huanglong",
+         "subsystem": "huanglong_products",
+         "syscap": [],
+-        "features": [],
++        "features": ["device_soc_huanglong_rtl8822cu_wifibt_support"],
+         "deps": {
+             "components": [
+                 "init",

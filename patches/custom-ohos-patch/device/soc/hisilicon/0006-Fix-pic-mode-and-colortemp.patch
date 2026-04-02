@@ -1,0 +1,557 @@
+diff --git a/common/driverbase/hal/PqHal.cpp b/common/driverbase/hal/PqHal.cpp
+index 0175d78..293330c 100644
+--- a/common/driverbase/hal/PqHal.cpp
++++ b/common/driverbase/hal/PqHal.cpp
+@@ -13,6 +13,7 @@
+ #include "uapi_system.h"
+ #include "ConfigFactory.h"
+ #include "CommonDef.h"
++#include "DisplayHal.h"
+ #include "FileUtils.h"
+ #include "VideoOutputHal.h"
+ 
+@@ -27,6 +28,12 @@
+ #include "drv_custom_for_backlight_alg.h"
+ */
+ 
++#ifdef DISP_OUTPORT_HDMI
++#define DISP_PORT UAPI_DISPLAY1
++#else
++#define DISP_PORT UAPI_DISPLAY0
++#endif
++
+ using namespace std;
+ using namespace PictureDef;
+ 
+@@ -147,10 +154,20 @@ int32_t PqHal::GetPqPath(std::string &pqPath)
+ int32_t PqHal::SetSaturation(uint32_t saturation)
+ {
+     LOGI("saturation=%u", saturation);
+-    int32_t ret = uapi_pq_set_saturation(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, saturation);
+-    if (ret != TD_SUCCESS) {
+-        LOGE("uapi_pq_set_saturation call failed! ret=0x%x", ret);
+-        return RETURN_FAILURE;
++    int32_t ret = RETURN_FAILURE;
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_0)) {
++        ret = uapi_pq_set_saturation(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, saturation);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_saturation call failed! ret=0x%x", ret);
++            return RETURN_FAILURE;
++        }
++    }
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_1)) {
++        ret = uapi_pq_set_saturation(UAPI_DISPLAY1, UAPI_PQ_IMAGE_ALL, saturation);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_saturation call failed! ret=0x%x", ret);
++            return RETURN_FAILURE;
++        }
+     }
+     return RETURN_SUCCESS;
+ }
+@@ -169,10 +186,20 @@ int32_t PqHal::GetSaturation(uint32_t &saturation)
+ int32_t PqHal::SetBrightness(uint32_t brightness)
+ {
+     LOGI("brightness=%u", brightness);
+-    int32_t ret = uapi_pq_set_brightness(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, brightness);
+-    if (ret != TD_SUCCESS) {
+-        LOGE("uapi_pq_set_brightness call failed! ret=0x%x", ret);
+-        return RETURN_FAILURE;
++    int32_t ret = RETURN_FAILURE;
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_0)) {
++        ret = uapi_pq_set_brightness(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, brightness);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_brightness call failed! ret=0x%x", ret);
++            return RETURN_FAILURE;
++        }
++    }
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_1)) {
++        ret = uapi_pq_set_brightness(UAPI_DISPLAY1, UAPI_PQ_IMAGE_ALL, brightness);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_brightness call failed! ret=0x%x", ret);
++            return RETURN_FAILURE;
++        }
+     }
+     return RETURN_SUCCESS;
+ }
+@@ -192,10 +219,21 @@ int32_t PqHal::SetContrast(uint32_t contrast)
+ {
+     LOGI("contrast=%u", contrast);
+     uapi_pq_init(nullptr);
+-    int32_t ret = uapi_pq_set_contrast(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, contrast);
+-    if (ret != TD_SUCCESS) {
+-        LOGE("uapi_pq_set_contrast call failed! ret=0x%x", ret);
+-        return RETURN_FAILURE;
++
++    int32_t ret = RETURN_FAILURE;
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_0)) {
++        ret = uapi_pq_set_contrast(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, contrast);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_contrast call failed! ret=0x%x", ret);
++            return RETURN_FAILURE;
++        }
++    }
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_1)) {
++        ret = uapi_pq_set_contrast(UAPI_DISPLAY1, UAPI_PQ_IMAGE_ALL, contrast);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_contrast call failed! ret=0x%x", ret);
++            return RETURN_FAILURE;
++        }
+     }
+     return RETURN_SUCCESS;
+ }
+@@ -214,10 +252,21 @@ int32_t PqHal::GetContrast(uint32_t &contrast)
+ int32_t PqHal::SetSharpness(uint32_t sharpness)
+ {
+     LOGI("sharpness=%d", sharpness);
+-    int32_t ret = uapi_pq_set_module_strength(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, UAPI_PQ_MODULE_SHARPNESS, sharpness);
+-    if (ret != TD_SUCCESS) {
+-        LOGE("uapi_pq_set_module_strength call failed! ret=0x%x", ret);
+-        return RETURN_FAILURE;
++
++    int32_t ret = RETURN_FAILURE;
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_0)) {
++        ret = uapi_pq_set_module_strength(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, UAPI_PQ_MODULE_SHARPNESS, sharpness);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_module_strength call failed! ret=0x%x", ret);
++            return RETURN_FAILURE;
++        }
++    }
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_1)) {
++        ret = uapi_pq_set_module_strength(UAPI_DISPLAY1, UAPI_PQ_IMAGE_ALL, UAPI_PQ_MODULE_SHARPNESS, sharpness);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_module_strength call failed! ret=0x%x", ret);
++            return RETURN_FAILURE;
++        }
+     }
+     LOGI("PqHal::SetSharpness =  %d", sharpness);
+     return RETURN_SUCCESS;
+@@ -234,10 +283,21 @@ int32_t PqHal::GetSharpness(uint32_t &sharpness)
+ int32_t PqHal::SetHue(uint32_t hue)
+ {
+     LOGI("hue=%u", hue);
+-    int32_t ret = uapi_pq_set_hue(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, hue);
+-    if (ret != TD_SUCCESS) {
+-        LOGE("uapi_pq_set_hue call failed! ret=0x%x", ret);
+-        return RETURN_FAILURE;
++
++    int32_t ret = RETURN_FAILURE;
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_0)) {
++        ret = uapi_pq_set_hue(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, hue);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_hue call failed! ret=0x%x", ret);
++            return RETURN_FAILURE;
++        }
++    }
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_1)) {
++        ret = uapi_pq_set_hue(UAPI_DISPLAY1, UAPI_PQ_IMAGE_ALL, hue);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_hue call failed! ret=0x%x", ret);
++            return RETURN_FAILURE;
++        }
+     }
+     return RETURN_SUCCESS;
+ }
+@@ -257,10 +317,21 @@ int32_t PqHal::SetNr(uint32_t nr)
+ {
+     LOGE("PqHal::SetNr not impl");
+     LOGI("nr=%u", nr);
+-    int32_t ret = uapi_pq_set_nr_level(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, nr);
+-    if (ret != TD_SUCCESS) {
+-        LOGE("uapi_pq_set_nr_level call failed! ret=0x%x", ret);
+-        return RETURN_FAILURE;
++
++    int32_t ret = RETURN_FAILURE;
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_0)) {
++        ret = uapi_pq_set_nr_level(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, nr);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_nr_level call failed! ret=0x%x", ret);
++            return RETURN_FAILURE;
++        }
++    }
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_1)) {
++        ret = uapi_pq_set_nr_level(UAPI_DISPLAY1, UAPI_PQ_IMAGE_ALL, nr);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_nr_level call failed! ret=0x%x", ret);
++            return RETURN_FAILURE;
++        }
+     }
+     LOGI("PqHal::SetNr =  %d", nr);
+     return RETURN_SUCCESS;
+@@ -274,10 +345,20 @@ int32_t PqHal::GetNr(uint32_t &nr)
+ 
+ int32_t PqHal::SetGamma(GammaType gammaType)
+ {
+-    int32_t ret = uapi_pq_set_table(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, UAPI_PQ_TABLE_MODULE_GAMMA, gammaType);
+-    if (ret != TD_SUCCESS) {
+-        LOGE("uapi_pq_set_table call failed! ret=0x%x", ret);
+-        return RETURN_FAILURE;
++    int32_t ret = RETURN_FAILURE;
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_0)) {
++        ret = uapi_pq_set_table(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, UAPI_PQ_TABLE_MODULE_GAMMA, gammaType);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_table call failed! ret=0x%x", ret);
++            return RETURN_FAILURE;
++        }
++    }
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_1)) {
++        ret = uapi_pq_set_table(UAPI_DISPLAY1, UAPI_PQ_IMAGE_ALL, UAPI_PQ_TABLE_MODULE_GAMMA, gammaType);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_table call failed! ret=0x%x", ret);
++            return RETURN_FAILURE;
++        }
+     }
+     return RETURN_SUCCESS;
+ }
+@@ -294,10 +375,21 @@ int32_t PqHal::SetGammaTable(const std::unique_ptr<GammaTable> &gammaTable)
+         LOGE("memcpy_s_func failed rc = %d", rc);
+         return RETURN_FAILURE;
+     }
+-    int32_t ret = uapi_pq_set_gamma_table(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, uapiGammaTab.get());
+-    if (ret != TD_SUCCESS) {
+-        LOGE("uapi_pq_set_gamma_table call failed! ret=0x%x", ret);
+-        return RETURN_FAILURE;
++
++    int32_t ret = RETURN_FAILURE;
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_0)) {
++        ret = uapi_pq_set_gamma_table(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, uapiGammaTab.get());
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_gamma_table call failed! ret=0x%x", ret);
++            return RETURN_FAILURE;
++        }
++    }
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_1)) {
++        ret = uapi_pq_set_gamma_table(UAPI_DISPLAY1, UAPI_PQ_IMAGE_ALL, uapiGammaTab.get());
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_gamma_table call failed! ret=0x%x", ret);
++            return RETURN_FAILURE;
++        }
+     }
+     return RETURN_SUCCESS;
+ }
+@@ -482,27 +574,54 @@ int32_t PqHal::SetColorTempParam(const ColorTempParam &colorTempParam)
+         uapiColorTemp.green_gain, uapiColorTemp.blue_gain, uapiColorTemp.red_offset, uapiColorTemp.green_offset,
+         uapiColorTemp.blue_offset);
+ 
+-    int32_t ret = uapi_pq_set_module_enable(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, UAPI_PQ_MODULE_COLOR_TEMP, TD_TRUE);
+-    if (ret != TD_SUCCESS) {
+-        LOGE("uapi_pq_set_module_enable call failed! ret=0x%x", ret);
+-        return RETURN_FAILURE;
++    int32_t ret = RETURN_FAILURE;
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_0)) {
++        ret = uapi_pq_set_module_enable(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, UAPI_PQ_MODULE_COLOR_TEMP, TD_TRUE);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_module_enable call failed! ret=0x%x", ret);
++            return RETURN_FAILURE;
++        }
++
++        ret = uapi_pq_set_color_temperature(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, uapiColorTemp);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_color_temperature call failed! ret=0x%x", ret);
++            return RETURN_FAILURE;
++        }
+     }
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_1)) {
++        ret = uapi_pq_set_module_enable(UAPI_DISPLAY1, UAPI_PQ_IMAGE_ALL, UAPI_PQ_MODULE_COLOR_TEMP, TD_TRUE);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_module_enable call failed! ret=0x%x", ret);
++            return RETURN_FAILURE;
++        }
+ 
+-    ret = uapi_pq_set_color_temperature(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, uapiColorTemp);
+-    if (ret != TD_SUCCESS) {
+-        LOGE("uapi_pq_set_color_temperature call failed! ret=0x%x", ret);
+-        return RETURN_FAILURE;
++        ret = uapi_pq_set_color_temperature(UAPI_DISPLAY1, UAPI_PQ_IMAGE_ALL, uapiColorTemp);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_color_temperature call failed! ret=0x%x", ret);
++            return RETURN_FAILURE;
++        }
+     }
++
+     return RETURN_SUCCESS;
+ }
+ 
+ int32_t PqHal::SetDciGainLevel(CommonLevel dciGainLevel)
+ {
+     LOGI("dciGainLevel=%d", dciGainLevel);
+-    int32_t ret = uapi_pq_set_dci_level(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, dciGainLevel);
+-    if (ret != TD_SUCCESS) {
+-        LOGE("uapi_pq_set_dci_level call failed! ret=0x%x", ret);
+-        return RETURN_FAILURE;
++    int32_t ret = RETURN_FAILURE;
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_0)) {
++        ret = uapi_pq_set_dci_level(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, dciGainLevel);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_dci_level call failed! ret=0x%x", ret);
++            return RETURN_FAILURE;
++        }
++    }
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_1)) {
++        ret = uapi_pq_set_dci_level(UAPI_DISPLAY1, UAPI_PQ_IMAGE_ALL, dciGainLevel);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_dci_level call failed! ret=0x%x", ret);
++            return RETURN_FAILURE;
++        }
+     }
+     return RETURN_SUCCESS;
+ }
+@@ -523,18 +642,35 @@ int32_t PqHal::GetDciGainLevel(CommonLevel &dciGainLevel)
+ int32_t PqHal::SetDciType(uint32_t typeIndex)
+ {
+     LOGI("typeIndex = %u", typeIndex);
+-    int32_t ret = uapi_pq_set_table(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, UAPI_PQ_TABLE_MODULE_DCI, typeIndex);
+-    if (ret == TD_SUCCESS) {
+-        //SaveOriDciAdjLut(typeIndex);
+-        return RETURN_SUCCESS;
++    int32_t ret = RETURN_FAILURE;
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_0)) {
++        ret = uapi_pq_set_table(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, UAPI_PQ_TABLE_MODULE_DCI, typeIndex);
++        if (ret == TD_SUCCESS) {
++            //SaveOriDciAdjLut(typeIndex);
++            return RETURN_SUCCESS;
++        }
++        LOGW("current DciType:%u not support, set DciType:0", typeIndex);
++        ret = uapi_pq_set_table(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, UAPI_PQ_TABLE_MODULE_DCI, 0);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_table call failed, ret: 0x%x.", ret);
++            return RETURN_FAILURE;
++        }
++        //SaveOriDciAdjLut(0);
+     }
+-    LOGW("current DciType:%u not support, set DciType:0", typeIndex);
+-    ret = uapi_pq_set_table(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, UAPI_PQ_TABLE_MODULE_DCI, 0);
+-    if (ret != TD_SUCCESS) {
+-        LOGE("uapi_pq_set_table call failed, ret: 0x%x.", ret);
+-        return RETURN_FAILURE;
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_1)) {
++        ret = uapi_pq_set_table(UAPI_DISPLAY1, UAPI_PQ_IMAGE_ALL, UAPI_PQ_TABLE_MODULE_DCI, typeIndex);
++        if (ret == TD_SUCCESS) {
++            //SaveOriDciAdjLut(typeIndex);
++            return RETURN_SUCCESS;
++        }
++        LOGW("current DciType:%u not support, set DciType:0", typeIndex);
++        ret = uapi_pq_set_table(UAPI_DISPLAY1, UAPI_PQ_IMAGE_ALL, UAPI_PQ_TABLE_MODULE_DCI, 0);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_table call failed, ret: 0x%x.", ret);
++            return RETURN_FAILURE;
++        }
++        //SaveOriDciAdjLut(0);
+     }
+-    //SaveOriDciAdjLut(0);
+     return RETURN_SUCCESS;
+ }
+ 
+@@ -543,10 +679,20 @@ int32_t PqHal::SetPqModuleEnable(PqModuleType module, bool enable)
+     uapi_pq_module mode = static_cast<uapi_pq_module>(module);
+     td_bool status = static_cast<td_bool>(enable);
+     LOGI("module = %d", mode);
+-    int32_t ret = uapi_pq_set_module_enable(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, mode, status);
+-    if (ret != TD_SUCCESS) {
+-        LOGE("uapi_pq_set_module_enable call failed! ret=0x%x", ret);
+-        return RETURN_FAILURE;
++    int32_t ret = RETURN_FAILURE;
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_0)) {
++        ret = uapi_pq_set_module_enable(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, mode, status);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_module_enable call failed! ret=0x%x", ret);
++            return RETURN_FAILURE;
++        }
++    }
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_1)) {
++        ret = uapi_pq_set_module_enable(UAPI_DISPLAY1, UAPI_PQ_IMAGE_ALL, mode, status);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_module_enable call failed! ret=0x%x", ret);
++            return RETURN_FAILURE;
++        }
+     }
+     return RETURN_SUCCESS;
+ }
+@@ -594,10 +740,20 @@ int32_t PqHal::GetPqModuleEnable(PqModuleType moduleType, bool &isEnable)
+ int32_t PqHal::SetDeBlocking(uint32_t level)
+ {
+     LOGI("level=%u", level);
+-    int32_t ret = uapi_pq_set_module_strength(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, UAPI_PQ_MODULE_DB, level);
+-    if (ret != TD_SUCCESS) {
+-        LOGE("uapi_pq_set_module_strength call failed! ret=0x%x", ret);
+-        return RETURN_FAILURE;
++    int32_t ret = RETURN_FAILURE;
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_0)) {
++        ret = uapi_pq_set_module_strength(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, UAPI_PQ_MODULE_DB, level);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_module_strength call failed! ret=0x%x", ret);
++            return RETURN_FAILURE;
++        }
++    }
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_1)) {
++        ret = uapi_pq_set_module_strength(UAPI_DISPLAY1, UAPI_PQ_IMAGE_ALL, UAPI_PQ_MODULE_DB, level);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_module_strength call failed! ret=0x%x", ret);
++            return RETURN_FAILURE;
++        }
+     }
+     return RETURN_SUCCESS;
+ }
+@@ -611,10 +767,20 @@ int32_t PqHal::GetDeBlocking(uint32_t &level)
+ int32_t PqHal::SetDeMosquito(uint32_t level)
+ {
+     LOGI("level=%u", level);
+-    int32_t ret = uapi_pq_set_module_strength(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, UAPI_PQ_MODULE_DM, level);
+-    if (ret != TD_SUCCESS) {
+-        LOGE("uapi_pq_set_module_strength call failed! ret=0x%x", ret);
+-        return RETURN_FAILURE;
++    int32_t ret = RETURN_FAILURE;
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_0)) {
++        ret = uapi_pq_set_module_strength(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, UAPI_PQ_MODULE_DM, level);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_module_strength call failed! ret=0x%x", ret);
++            return RETURN_FAILURE;
++        }
++    }
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_1)) {
++        ret = uapi_pq_set_module_strength(UAPI_DISPLAY1, UAPI_PQ_IMAGE_ALL, UAPI_PQ_MODULE_DM, level);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_module_strength call failed! ret=0x%x", ret);
++            return RETURN_FAILURE;
++        }
+     }
+     return RETURN_SUCCESS;
+ }
+@@ -643,10 +809,19 @@ int32_t PqHal::SetColorGain(ColorType colorType)
+         colorType = COLOR_TYPE_CVBS;
+     }
+     LOGI("colorType = %d", colorType);
+-    ret = uapi_pq_set_table(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, UAPI_PQ_TABLE_MODULE_COLOR, colorType);
+-    if (ret == TD_SUCCESS) {
+-        m_lastColorType = colorType;
+-        return RETURN_SUCCESS;
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_0)) {
++        ret = uapi_pq_set_table(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, UAPI_PQ_TABLE_MODULE_COLOR, colorType);
++        if (ret == TD_SUCCESS) {
++            m_lastColorType = colorType;
++            return RETURN_SUCCESS;
++        }
++    }
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_1)) {
++        ret = uapi_pq_set_table(UAPI_DISPLAY1, UAPI_PQ_IMAGE_ALL, UAPI_PQ_TABLE_MODULE_COLOR, colorType);
++        if (ret == TD_SUCCESS) {
++            m_lastColorType = colorType;
++            return RETURN_SUCCESS;
++        }
+     }
+     LOGE("uapi_pq_set_table call failed! ret=0x%x", ret);
+     return RETURN_FAILURE;
+@@ -655,10 +830,20 @@ int32_t PqHal::SetColorGain(ColorType colorType)
+ int32_t PqHal::SetHdrCurveIndex(uint32_t hdrCurveIndex)
+ {
+     LOGI("hdrCurveIndex=%u", hdrCurveIndex);
+-    int32_t ret = uapi_pq_set_table(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, UAPI_PQ_TABLE_MODULE_HDR, hdrCurveIndex);
+-    if (ret != TD_SUCCESS) {
+-        LOGE("uapi_pq_set_table call failed! ret=0x%x", ret);
+-        return RETURN_FAILURE;
++    int32_t ret = RETURN_FAILURE;
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_0)) {
++        ret = uapi_pq_set_table(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, UAPI_PQ_TABLE_MODULE_HDR, hdrCurveIndex);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_table call failed! ret=0x%x", ret);
++            return RETURN_FAILURE;
++        }
++    }
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_1)) {
++        ret = uapi_pq_set_table(UAPI_DISPLAY1, UAPI_PQ_IMAGE_ALL, UAPI_PQ_TABLE_MODULE_HDR, hdrCurveIndex);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_table call failed! ret=0x%x", ret);
++            return RETURN_FAILURE;
++        }
+     }
+     return RETURN_SUCCESS;
+ }
+@@ -763,10 +948,20 @@ int32_t PqHal::SetPanelColorPoint(const PanelColorParam &panelColorParam)
+     uapiPanelColorParam.white_point_y = panelColorParam.primaryW.y;
+     uapiPanelColorParam.max_display_mastering_luminance = panelColorParam.maxLuminance;
+     uapiPanelColorParam.min_display_mastering_luminance = panelColorParam.minLuminance;
+-    int32_t ret = uapi_pq_set_panel_param(UAPI_DISPLAY0, &uapiPanelColorParam);
+-    if (ret != TD_SUCCESS) {
+-        LOGE("uapi_pq_set_panel_param call failed! ret = 0x%x", ret);
+-        return RETURN_FAILURE;
++    int32_t ret = RETURN_FAILURE;
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_0)) {
++        ret = uapi_pq_set_panel_param(UAPI_DISPLAY0, &uapiPanelColorParam);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_panel_param call failed! ret = 0x%x", ret);
++            return RETURN_FAILURE;
++        }
++    }
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_1)) {
++        ret = uapi_pq_set_panel_param(UAPI_DISPLAY1, &uapiPanelColorParam);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_panel_param call failed! ret = 0x%x", ret);
++            return RETURN_FAILURE;
++        }
+     }
+     return RETURN_SUCCESS;
+ }
+@@ -783,10 +978,20 @@ int32_t PqHal::SetDciGain(const DciGain &dciGain)
+     uapiDciGain.high_gain = dciGain.highGain;
+     LOGI("set dci gain: low_gain = %u, middle_gain = %u, high_gain = %u", uapiDciGain.low_gain, uapiDciGain.middle_gain,
+         uapiDciGain.high_gain);
+-    td_s32 ret = uapi_pq_set_dci_gain(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, &uapiDciGain);
+-    if (ret != TD_SUCCESS) {
+-        LOGE("uapi_pq_set_dci_gain failed, ret = 0x%x", ret);
+-        return RETURN_FAILURE;
++    int32_t ret = RETURN_FAILURE;
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_0)) {
++        ret = uapi_pq_set_dci_gain(UAPI_DISPLAY0, UAPI_PQ_IMAGE_ALL, &uapiDciGain);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_dci_gain failed, ret = 0x%x", ret);
++            return RETURN_FAILURE;
++        }
++    }
++    if (IsDispActive(UAPI_SVR_DISPMNG_DISPLAY_INDEX_1)) {
++        ret = uapi_pq_set_dci_gain(UAPI_DISPLAY1, UAPI_PQ_IMAGE_ALL, &uapiDciGain);
++        if (ret != TD_SUCCESS) {
++            LOGE("uapi_pq_set_dci_gain failed, ret = 0x%x", ret);
++            return RETURN_FAILURE;
++        }
+     }
+     return RETURN_SUCCESS;
+ }
+@@ -997,3 +1202,19 @@ void PqHal::SaveOriDciAdjLut(uint32_t dciIndex)
+ {
+     LOGE("PqHal::SaveOriDciAdjLut not impl");
+ }
++
++bool PqHal::IsDispActive(uapi_svr_dispmng_display_index index)
++{
++    uapi_svr_dispmng_display_id dispId = UAPI_SVR_DISPMNG_DISPLAY_ID_MAX;
++    int32_t ret = DisplayHal::GetDisplayHal(DISP_PORT)->GetDispmngDisplayId(index, &dispId);
++    if (ret != TD_SUCCESS) {
++        LOGE("GetDispmngDisplayId failed");
++        return false;
++    }
++    LOGD("index=%d, dispId=%d", index, dispId);
++    if (dispId != UAPI_SVR_DISPMNG_DISPLAY_ID_MAX) {
++        return true;
++    } else {
++        return false;
++    }
++}
+diff --git a/common/driverbase/hal/include/PqHal.h b/common/driverbase/hal/include/PqHal.h
+index 1c93e71..c9dfad4 100644
+--- a/common/driverbase/hal/include/PqHal.h
++++ b/common/driverbase/hal/include/PqHal.h
+@@ -4,6 +4,7 @@
+ #include <stdint.h>
+ #include <string>
+ #include "uapi_pq.h"
++#include "DisplayHal.h"
+ #include "GammaDef.h"
+ #include "PictureDef.h"
+ #include "FactoryDef.h"
+@@ -89,6 +90,7 @@ public:
+     int32_t SetColor3dLutDataExtend(const PreColor3dLutExtend &color3dLutData);
+     int32_t SetLDCMode(uint8_t mode);
+     int32_t GetLDCDuty(uint16_t *u16LDCInitDuty);
++    static bool IsDispActive(uapi_svr_dispmng_display_index index);
+ 
+     private:
+         static constexpr std::string_view DCI_IDX_PROP = "vendor.driverbase.dci_index";

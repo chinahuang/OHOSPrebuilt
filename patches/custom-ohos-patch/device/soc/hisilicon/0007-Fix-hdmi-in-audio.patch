@@ -1,0 +1,61 @@
+diff --git a/common/driverbase/hal/AudioDecoderHal.cpp b/common/driverbase/hal/AudioDecoderHal.cpp
+index 9b6995c..0ca6069 100644
+--- a/common/driverbase/hal/AudioDecoderHal.cpp
++++ b/common/driverbase/hal/AudioDecoderHal.cpp
+@@ -682,7 +682,7 @@ int32_t AudioDecoderHal::GetAdecType(AoutHdmiDataType audioDataType)
+     return adecType;
+ }
+ 
+-int32_t AudioDecoderHal::HdmiInit()
++int32_t AudioDecoderHal::HdmiInit(AoutAudioInputType source)
+ {
+     if(Check() != RETURN_SUCCESS){
+         LOGE("check failed");
+@@ -693,6 +693,11 @@ int32_t AudioDecoderHal::HdmiInit()
+         LOGE("HDMIRX Init fail, ret:0x%x", ret);
+         return RETURN_FAILURE;
+     }
++    ret = uapi_hdmirx_connect(ConvertInputToHdmiPort(source));
++    if(ret != TD_SUCCESS){
++        LOGE("HDMIRX connect fail, port:0x%x, ret:0x%x", ConvertInputToHdmiPort(source), ret);
++        return RETURN_FAILURE;
++    }
+     return RETURN_SUCCESS;
+ }
+ 
+diff --git a/common/driverbase/hal/HdmiAudioControllerHal.cpp b/common/driverbase/hal/HdmiAudioControllerHal.cpp
+index 8d3ba14..883a57a 100644
+--- a/common/driverbase/hal/HdmiAudioControllerHal.cpp
++++ b/common/driverbase/hal/HdmiAudioControllerHal.cpp
+@@ -54,17 +54,10 @@ int32_t HdmiAudioControllerHal::Create(AoutAudioInputType source)
+         m_input = nullptr;
+         return RETURN_FAILURE;
+     }
+-    int32_t ret = m_decoder->HdmiInit();
++    int32_t ret = m_decoder->HdmiInit(source);
+     if(ret != RETURN_SUCCESS) {
+         LOGW("HdmiInit failed. ret = %d", ret);
+     }
+-    if(!m_isRegisterCodecLib) {
+-        ret = m_decoder->RegisterAllCodecLib(m_LoadAudioCodecLib, AUDIO_CODEC_LIB_BUTT);
+-        if(ret != RETURN_SUCCESS) {
+-            LOGW("RegisterCodecLib failed. ret = %d", ret);
+-        }
+-        m_isRegisterCodecLib = true;
+-    }
+     m_source = source;
+     m_bPassThrough = false;
+     return RETURN_SUCCESS;
+diff --git a/common/driverbase/hal/include/AudioDecoderHal.h b/common/driverbase/hal/include/AudioDecoderHal.h
+index 26a611a..353dd99 100644
+--- a/common/driverbase/hal/include/AudioDecoderHal.h
++++ b/common/driverbase/hal/include/AudioDecoderHal.h
+@@ -35,7 +35,7 @@ public:
+     int32_t GetHandle();
+     int32_t GetAdecType(AoutHdmiDataType audioDataType);
+     int32_t SetAdecAttrMap(uint32_t audioDecType, DecodeMode mode);
+-    int32_t HdmiInit();
++    int32_t HdmiInit(AoutAudioInputType source);
+     int32_t GetHdmiAudioInfo(HdmiAudioAttr &hdmiAudioInfo, AoutAudioInputType source);
+     int32_t GetHdmiAudioStatus(SignalStatus &signalState, AoutAudioInputType source);
+     int32_t GetStreamInfo(AcodecStreamInfo &streamInfo);

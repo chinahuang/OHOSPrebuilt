@@ -1,0 +1,90 @@
+diff --git a/tools/deps_guard/rules/ChipsetSDK/chipsetsdk_indirect.json b/tools/deps_guard/rules/ChipsetSDK/chipsetsdk_indirect.json
+index 4d5d2de..2ad1a13 100755
+--- a/tools/deps_guard/rules/ChipsetSDK/chipsetsdk_indirect.json
++++ b/tools/deps_guard/rules/ChipsetSDK/chipsetsdk_indirect.json
+@@ -277,5 +277,35 @@
+         "headers": [
+             "//foundation/filemanagement/storage_service/interfaces/innerkits/acl/native/"
+         ]
++    },
++    {
++        "name": "bundle_framework:appexecfwk_base",
++        "so_file_name": "libappexecfwk_base.z.so",
++        "path": "//foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_base",
++        "headers": []
++    },
++    {
++        "name": "bundle_framework:appexecfwk_core",
++        "so_file_name": "libappexecfwk_core.z.so",
++        "path": "//foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_core",
++        "headers": []
++    },
++    {
++        "name": "graphic_surface:surface",
++        "so_file_name": "libsurface.z.so",
++        "path": "//foundation/graphic/graphic_surface/surface",
++        "headers": []
++    },
++    {
++        "name": "samgr:samgr_proxy",
++        "so_file_name": "libsamgr_proxy.z.so",
++        "path": "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy",
++        "headers": []
++    },
++    {
++        "name": "ability_base:want",
++        "so_file_name": "libwant.z.so",
++        "path": "//foundation/ability/ability_base:want",
++        "headers": []
+     }
+ ]
+diff --git a/tools/deps_guard/rules/ChipsetSDK/chipsetsdk_info.json b/tools/deps_guard/rules/ChipsetSDK/chipsetsdk_info.json
+index 01f1d86..6fb749f 100644
+--- a/tools/deps_guard/rules/ChipsetSDK/chipsetsdk_info.json
++++ b/tools/deps_guard/rules/ChipsetSDK/chipsetsdk_info.json
+@@ -547,6 +547,15 @@
+             "//third_party/openssl/include/"
+         ]
+     },
++    {
++        "name": "mbedtls:mbedtls_shared",
++        "so_file_name": "libmbedtls.z.so",
++        "path": "//third_party/mbedtls:mbedtls_shared",
++        "headers": [
++            "//third_party/mbedtls/include/",
++            "//out/rk3568/obj/third_party/mbedtls/build_all_generated/linux-armv4/include/"
++        ]
++    },
+     {
+         "name": "certificate_manager:cert_manager_sdk",
+         "so_file_name": "libcert_manager_sdk.z.so",
+@@ -588,5 +597,17 @@
+         "headers": [
+             "//developtools/profiler/device/plugins/ffrt_profiler/client/include/"
+         ]
++    },
++    {
++        "name": "graphic_2d:EGL",
++        "so_file_name": "libEGL.so",
++        "path": "//foundation/graphic/graphic_2d/frameworks/opengl_wrapper:EGL",
++        "headers": []
++    },
++    {
++        "name": "graphic_2d:GLESv3",
++        "so_file_name": "libGLESv3.so",
++        "path": "//foundation/graphic/graphic_2d/frameworks/opengl_wrapper:GLESv3",
++        "headers": []
+     }
+ ]
+diff --git a/tools/deps_guard/rules/NO-Depends-On-HDI/whitelist.json b/tools/deps_guard/rules/NO-Depends-On-HDI/whitelist.json
+index 57f84f8..95393c5 100755
+--- a/tools/deps_guard/rules/NO-Depends-On-HDI/whitelist.json
++++ b/tools/deps_guard/rules/NO-Depends-On-HDI/whitelist.json
+@@ -3,5 +3,6 @@
+ 	"libhril_hdf_ext.z.so",
+ 	"libusb_pnp_manager.z.so",
+ 	"libcamera_daemon.so",
+-	"libril_driver.z.so"
++	"libril_driver.z.so",
++	"libwiseplay_driver.z.so"
+ ]

@@ -1,0 +1,24 @@
+diff --git a/src/config_parser.cpp b/src/config_parser.cpp
+index 1d2f8aa..5d3e798 100644
+--- a/src/config_parser.cpp
++++ b/src/config_parser.cpp
+@@ -14,6 +14,7 @@
+  */
+ 
+ #include "config_parser.h"
++#include <cstring>
+ #include <iostream>
+ #include <regex>
+ #include "reference_parser.h"
+diff --git a/src/resource_util.cpp b/src/resource_util.cpp
+index eecfa68..4ee82fa 100644
+--- a/src/resource_util.cpp
++++ b/src/resource_util.cpp
+@@ -16,6 +16,7 @@
+ #include "resource_util.h"
+ #include <algorithm>
+ #include <cstdlib>
++#include <cstring>
+ #include <fstream>
+ #include <iostream>
+ #include <iomanip>

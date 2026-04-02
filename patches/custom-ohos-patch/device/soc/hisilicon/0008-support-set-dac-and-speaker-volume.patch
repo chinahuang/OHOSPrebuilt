@@ -1,0 +1,14 @@
+diff --git a/common/driverbase/hal/AudioOutDeviceHal.cpp b/common/driverbase/hal/AudioOutDeviceHal.cpp
+index 4bbf76e..099fdba 100644
+--- a/common/driverbase/hal/AudioOutDeviceHal.cpp
++++ b/common/driverbase/hal/AudioOutDeviceHal.cpp
+@@ -88,6 +88,9 @@ uapi_snd_out_port AudioOutDeviceHal::ConvertDeviceTypeToPort(AoutDeviceType outp
+         case DRIVERBASE_AOUT_DEVICE_ARC:
+             outPort = UAPI_SND_OUT_PORT_ARC0;
+             break;
++        case DRIVERBASE_AOUT_DEVICE_ALL:
++            outPort = UAPI_SND_OUT_PORT_ALL;
++            break;
+         default:
+             LOGE("invalid deviceTypeL0x%x", outputDevice);
+             break;

@@ -1,0 +1,20 @@
+diff --git a/huanglong/bundle.json b/huanglong/bundle.json
+index f303678..9fb8ea5 100644
+--- a/huanglong/bundle.json
++++ b/huanglong/bundle.json
+@@ -441,6 +441,15 @@
+                         ],
+                         "header_base": "//device/soc/hisilicon/huanglong/vendor/platform/secure_c/include"
+                     }
++                },
++                {
++                    "name": "//device/soc/hisilicon/huanglong/vendor/huanglong/binary/uapi/aihal:libaihal",
++                    "header": {
++                        "header_files": [
++                            "aihal.h"
++                        ],
++                        "header_base": "//device/soc/hisilicon/huanglong/vendor/huanglong/uapi/aihal/include/aihal"
++                    }
+                 }
+             ],
+             "test": []

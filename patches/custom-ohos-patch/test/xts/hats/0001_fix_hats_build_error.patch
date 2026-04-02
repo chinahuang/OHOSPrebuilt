@@ -1,0 +1,66 @@
+diff --git a/hdf/camera/cameraHdi/buffer_manager/BUILD.gn b/hdf/camera/cameraHdi/buffer_manager/BUILD.gn
+index 0010961b..7f959ba4 100644
+--- a/hdf/camera/cameraHdi/buffer_manager/BUILD.gn
++++ b/hdf/camera/cameraHdi/buffer_manager/BUILD.gn
+@@ -64,8 +64,6 @@ ohos_moduletest_suite("HatsHdfCameraBufferTest") {
+   ]
+ 
+   deps = [
+-    "$board_camera_path/device_manager:camera_device_manager",
+-    "$board_camera_path/pipeline_core:camera_pipeline_core",
+     "$camera_path/../../hdi_service/v1_0:camera_host_service_1.0_static",
+     "//third_party/googletest:gmock_main",
+     "//third_party/googletest:gtest",
+diff --git a/hdf/camera/cameraHdi/pipeline_core/BUILD.gn b/hdf/camera/cameraHdi/pipeline_core/BUILD.gn
+index ff977f15..3ca9df67 100644
+--- a/hdf/camera/cameraHdi/pipeline_core/BUILD.gn
++++ b/hdf/camera/cameraHdi/pipeline_core/BUILD.gn
+@@ -72,8 +72,6 @@ ohos_moduletest_suite("HatsHdfCameraPipelineTest") {
+   ]
+ 
+   deps = [
+-    "$board_camera_path/device_manager:camera_device_manager",
+-    "$board_camera_path/pipeline_core:camera_pipeline_core",
+     "$camera_path/../../hdi_service/v1_0:camera_host_service_1.0_static",
+     "//third_party/googletest:gmock",
+     "//third_party/googletest:gmock_main",
+@@ -87,6 +85,7 @@ ohos_moduletest_suite("HatsHdfCameraPipelineTest") {
+       "drivers_peripheral_camera:peripheral_camera_buffer_manager",
+       "drivers_peripheral_camera:peripheral_camera_device_manager",
+       "drivers_peripheral_camera:peripheral_camera_pipeline_core",
++      "drivers_peripheral_camera:usb_camera_pipeline_core",
+       "graphic_surface:surface",
+       "hdf_core:libhdf_host",
+       "hdf_core:libhdf_ipc_adapter",
+diff --git a/hdf/camera/cameraHdi/v4l2/BUILD.gn b/hdf/camera/cameraHdi/v4l2/BUILD.gn
+index bef12584..23058149 100644
+--- a/hdf/camera/cameraHdi/v4l2/BUILD.gn
++++ b/hdf/camera/cameraHdi/v4l2/BUILD.gn
+@@ -88,8 +88,6 @@ ohos_moduletest_suite("HatsHdfCameraTest") {
+   ]
+ 
+   deps = [
+-    "$board_camera_path/device_manager:camera_device_manager",
+-    "$board_camera_path/pipeline_core:camera_pipeline_core",
+     "$camera_path/../../hdi_service/v1_0:camera_host_service_1.0_static",
+     "//third_party/googletest:gmock",
+     "//third_party/googletest:gmock_main",
+diff --git a/powermgr/power/hdi_power/common/hdi_power_test.cpp b/powermgr/power/hdi_power/common/hdi_power_test.cpp
+index 7dbcb22d..c22f1581 100644
+--- a/powermgr/power/hdi_power/common/hdi_power_test.cpp
++++ b/powermgr/power/hdi_power/common/hdi_power_test.cpp
+@@ -74,6 +74,14 @@ public:
+         return 0;
+     }
+ 
++    int32_t SetWakeTypeFlagImpl(int64_t waketype, bool flag, int64_t timeout) override
++    {
++        (void)waketype;
++        (void)flag;
++        (void)timeout;
++        return 0;
++    }
++
+     int32_t StartSuspend() override
+     {
+         return 0;
