@@ -890,12 +890,14 @@ set -euo pipefail
 TOP=$(dirname $0)/../../../../../../../../../
 TOP=$(cd "$TOP" && pwd)
 
-# $1=root_dir(绝对路径), $2=root_build_dir(相对于root_dir)
+# $1=root_dir(绝对路径), $2=root_build_dir(相对于root_dir，如 out/wudangstick)
 # ninja从out/目录执行，$2是相对路径，需与$1拼接得到绝对路径
 OUT_ROOT="${{1%/}}/$2"
 CHIP_REVISION=${{{5}:-{rev}}}
 
-PREBUILT_DIR="$TOP/device/{board}/kernel"
+# 从 out 路径动态解析 board（如 out/wudangstick → wudangstick），支持多产品共用同一脚本
+BOARD=$(basename "$2")
+PREBUILT_DIR="$TOP/device/$BOARD/kernel"
 KO_SRC_DIR="$PREBUILT_DIR/modules"
 
 echo "[PREBUILT] Copying kernel images from $PREBUILT_DIR"
@@ -944,7 +946,9 @@ TOP=$1
 PRODUCT_OUT=$2
 CHIP_REVISION=${{{4}:-{rev}}}
 
-PREBUILT_DIR="$TOP/device/{board}/bootloader"
+# 从 PRODUCT_OUT 路径动态解析 board（如 out/wudangstick → wudangstick），支持多产品共用同一脚本
+BOARD=$(basename "$PRODUCT_OUT")
+PREBUILT_DIR="$TOP/device/$BOARD/bootloader"
 DEST_DIR="$TOP/$PRODUCT_OUT/packages/phone/images"
 
 echo "[PREBUILT] Copying bootloader images from $PREBUILT_DIR"
