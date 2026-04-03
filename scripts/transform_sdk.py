@@ -1445,6 +1445,29 @@ def pack_tarball(ohos_root: Path, product: str, output_path: Path, dry_run: bool
 
     print(f"    [TAR] 打包中，目标: {output_path.name} ...")
 
+    # 合作伙伴编译不需要以下源码目录（产物已预编译），打包时排除以缩小体积
+    _SOURCE_EXCLUDE_PREFIXES = (
+        # u-boot 源码（bootloader 预编译产物在 device/<board>/bootloader/）
+        './vendor/open_source/u-boot/',
+        # liteos 源码
+        './vendor/platform/liteos/liteos-207.0.0-release/',
+        # media frameworks 源码（.so 已预编译）
+        './vendor/open_source/frameworks/av/',
+        # 音频编解码库源码（opus / fdk-aac / alsa-lib/src / alsa-lib/test）
+        './vendor/open_source/opus/',
+        './vendor/open_source/fdk-aac/',
+        './vendor/open_source/alsa-lib/src/',
+        './vendor/open_source/alsa-lib/test/',
+        # mbedtls 实现源码（保留 include/）
+        './vendor/open_source/mbedtls/library/',
+        './vendor/open_source/mbedtls/tests/',
+        './vendor/open_source/mbedtls/programs/',
+        './vendor/open_source/mbedtls/3rdparty/',
+    )
+    # GPU driver 目录只删 .c/.cpp，保留 .h（include 头文件）
+    _GPU_DRV_PREFIX = './vendor/thirdparty/gpu/drv/'
+    _GPU_DRV_SRC_EXTS = {'.c', '.cpp', '.cc', '.cxx'}
+
     def _tar_filter(tarinfo):
         # 排除 .git 目录
         if '/.git/' in tarinfo.name or tarinfo.name.endswith('/.git'):
@@ -1452,6 +1475,15 @@ def pack_tarball(ohos_root: Path, product: str, output_path: Path, dry_run: bool
         # 排除 out/ 目录（如果误包含）
         if '/out/' in tarinfo.name:
             return None
+        # 排除不需要的源码目录（合作伙伴只需预编译产物）
+        for prefix in _SOURCE_EXCLUDE_PREFIXES:
+            if tarinfo.name.startswith(prefix):
+                return None
+        # GPU driver：只排除 .c/.cpp 源文件，保留头文件
+        if tarinfo.name.startswith(_GPU_DRV_PREFIX):
+            ext = os.path.splitext(tarinfo.name)[1].lower()
+            if ext in _GPU_DRV_SRC_EXTS:
+                return None
         return tarinfo
 
     with tarfile.open(output_path, 'w:gz') as tar:
