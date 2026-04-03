@@ -1191,6 +1191,189 @@ def fix_frontend_config_dep(ohos_root: Path, dry_run: bool = False) -> bool:
 
 
 # =============================================================================
+# Phase 5.11: TEE/secure_c 平台库改造为预编译拷贝
+# =============================================================================
+
+def convert_platform_libs_to_prebuilt(ohos_root: Path, out_dir: Path,
+                                      dry_run: bool = False) -> int:
+    """
+    将 vendor/platform/ 下仍以源码方式编译的平台库改造为预编译拷贝：
+
+    1. libteec_vendor:
+       - 产物: out/<board>/huanglong_products/libteec_vendor/{libteec_vendor.so,teecd,tlogcat}
+       - 目标: vendor/huanglong/binary/platform/libteec_vendor/ohos3.2/{lib64/,bin64/}
+       - 创建 BUILD.gn（ohos_prebuilt_shared_library + ohos_prebuilt_executable）
+       - 修改 product.gni: source:libteec_vendor → prebuilt_part.gni 中的引用
+
+    2. secure_c:
+       - 产物: out/<board>/huanglong_products/libuapi_securec/libuapi_securec.so
+       - 目标: vendor/huanglong/binary/platform/secure_c/ohos3.2/lib64/
+       - 创建 BUILD.gn + part.gni
+       - 修改 product.gni: $securec_lib → prebuilt 引用
+
+    3. pdmtool:
+       - 产物: out/<board>/huanglong_products/pdmtool/pdmtool
+       - 修改 vendor/tools/board/huanglong/pdm/BUILD.gn 为 ohos_prebuilt_executable
+
+    返回已处理的模块数量。
+    """
+    count = 0
+
+    # ---------- 读取 product.gni（通过 os 变量确定子目录） ----------
+    # os 变量从 product.gni 读取，用于确定 binary 目录名
+    # 默认 ohos3.2（主流 OHOS5 版本）
+    os_name = 'ohos3.2'
+    product_gni_candidates = list(ohos_root.glob('vendor/hisilicon/*/product.gni'))
+    for pg in product_gni_candidates:
+        m = re.search(r'^os\s*=\s*"([^"]+)"', pg.read_text(), re.MULTILINE)
+        if m:
+            os_name = m.group(1)
+            break
+
+    binary_platform_dir = ohos_root / 'vendor' / 'huanglong' / 'binary' / 'platform'
+
+    # ===== 1. libteec_vendor =====
+    src_dir = out_dir / 'huanglong_products' / 'libteec_vendor'
+    so_src  = src_dir / 'libteec_vendor.so'
+    teecd_src   = src_dir / 'teecd'
+    tlogcat_src = src_dir / 'tlogcat'
+
+    if so_src.exists() and teecd_src.exists():
+        dest_base = binary_platform_dir / 'libteec_vendor' / os_name
+        lib64_dir = dest_base / 'lib64'
+        bin64_dir = dest_base / 'bin64'
+
+        if not dry_run:
+            lib64_dir.mkdir(parents=True, exist_ok=True)
+            bin64_dir.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(so_src,      lib64_dir / 'libteec_vendor.so')
+            shutil.copy2(teecd_src,   bin64_dir / 'teecd')
+            shutil.copy2(tlogcat_src, bin64_dir / 'tlogcat')
+
+            build_gn = dest_base / 'BUILD.gn'
+            build_gn.write_text(
+                'import("//build/ohos.gni")\n'
+                'import("//vendor/${product_company}/${product_name}/product.gni")\n\n'
+                'ohos_prebuilt_shared_library("libteec_vendor") {\n'
+                '  part_name = "libteec_vendor"\n'
+                '  install_images = [ "vendor" ]\n'
+                '  source = "lib64/libteec_vendor.so"\n'
+                '  output_extension = "so"\n'
+                '}\n\n'
+                'ohos_prebuilt_executable("teecd") {\n'
+                '  part_name = "libteec_vendor"\n'
+                '  install_enable = true\n'
+                '  install_images = [ "vendor" ]\n'
+                '  source = "bin64/teecd"\n'
+                '}\n\n'
+                'ohos_prebuilt_executable("tlogcat") {\n'
+                '  part_name = "libteec_vendor"\n'
+                '  install_enable = true\n'
+                '  install_images = [ "vendor" ]\n'
+                '  source = "bin64/tlogcat"\n'
+                '}\n'
+            )
+
+        # 修改 product.gni：将 source:libteec_vendor → prebuilt_part.gni 中的路径
+        for pg in product_gni_candidates:
+            text = pg.read_text()
+            old = f'"$sdk_dir/vendor/platform/libteec_vendor/source:libteec_vendor"'
+            new = f'"$sdk_dir/vendor/huanglong/binary/platform/libteec_vendor/{os_name}:libteec_vendor"'
+            if old in text and new not in text:
+                if not dry_run:
+                    pg.write_text(text.replace(old, new, 1))
+                print(f'    [FIX] libteec_vendor: product.gni → prebuilt ({pg.name})')
+
+        print(f'    [OK] libteec_vendor: .so + teecd + tlogcat → binary/platform/libteec_vendor/{os_name}/')
+        count += 1
+    else:
+        print(f'    [SKIP] libteec_vendor: 产物不存在，跳过 ({so_src})')
+
+    # ===== 2. secure_c (libuapi_securec) =====
+    sec_so_src = out_dir / 'huanglong_products' / 'libuapi_securec' / 'libuapi_securec.so'
+
+    if sec_so_src.exists():
+        dest_base = binary_platform_dir / 'secure_c' / os_name
+        lib64_dir = dest_base / 'lib64'
+
+        if not dry_run:
+            lib64_dir.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(sec_so_src, lib64_dir / 'libuapi_securec.so')
+
+            build_gn = dest_base / 'BUILD.gn'
+            build_gn.write_text(
+                'import("//build/ohos.gni")\n'
+                'import("//vendor/${product_company}/${product_name}/product.gni")\n\n'
+                'ohos_prebuilt_shared_library("libuapi_securec") {\n'
+                '  part_name = "libuapi_securec"\n'
+                '  install_images = [ "vendor" ]\n'
+                '  source = "lib64/libuapi_securec.so"\n'
+                '  output_extension = "so"\n'
+                '}\n'
+            )
+
+            part_gni = dest_base.parent / 'part.gni'
+            part_gni.write_text(
+                'import("//build/ohos.gni")\n'
+                'import("//vendor/${product_company}/${product_name}/base.gni")\n\n'
+                f'libuapi_securec = "$sdk_dir/vendor/huanglong/binary/platform/secure_c/{os_name}:libuapi_securec"\n'
+            )
+
+        # 修改 product.gni：将 securec_lib 改为指向 prebuilt
+        for pg in product_gni_candidates:
+            text = pg.read_text()
+            # securec_lib = "//third_party/bounds_checking_function:libsec_shared"
+            old_sec = '= "$securec_lib"'
+            new_sec = f'= "$sdk_dir/vendor/huanglong/binary/platform/secure_c/{os_name}:libuapi_securec"'
+            # 只改 libuapi_securec 那行
+            old_line = f'libuapi_securec = "$securec_lib"'
+            new_line = f'libuapi_securec = "$sdk_dir/vendor/huanglong/binary/platform/secure_c/{os_name}:libuapi_securec"'
+            if old_line in text and new_line not in text:
+                if not dry_run:
+                    pg.write_text(text.replace(old_line, new_line, 1))
+                print(f'    [FIX] secure_c: product.gni libuapi_securec → prebuilt ({pg.name})')
+
+        print(f'    [OK] secure_c: libuapi_securec.so → binary/platform/secure_c/{os_name}/')
+        count += 1
+    else:
+        print(f'    [SKIP] secure_c: 产物不存在，跳过 ({sec_so_src})')
+
+    # ===== 3. pdmtool =====
+    pdm_src = out_dir / 'huanglong_products' / 'pdmtool' / 'pdmtool'
+    # pdm BUILD.gn 在 outer vendor（ohos_root/../vendor/），不是 ohos5/vendor/
+    outer_vendor = ohos_root.parent / 'vendor'
+    pdm_gn  = outer_vendor / 'tools' / 'board' / 'huanglong' / 'pdm' / 'BUILD.gn'
+
+    if pdm_src.exists() and pdm_gn.exists():
+        text = pdm_gn.read_text()
+        if 'ohos_executable("pdmtool")' in text and 'ohos_prebuilt_executable' not in text:
+            dest_bin = pdm_gn.parent / 'bin64' / 'pdmtool'
+            if not dry_run:
+                dest_bin.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(pdm_src, dest_bin)
+                # 整体替换 BUILD.gn（保留 import 行，替换 ohos_executable 为 prebuilt）
+                imports = [l for l in text.splitlines() if l.startswith('import(')]
+                new_text = '\n'.join(imports) + '\n\n'
+                new_text += (
+                    'ohos_prebuilt_executable("pdmtool") {\n'
+                    '  part_name = "pdmtool"\n'
+                    '  install_enable = true\n'
+                    '  install_images = [ "vendor" ]\n'
+                    '  source = "bin64/pdmtool"\n'
+                    '}\n'
+                )
+                pdm_gn.write_text(new_text)
+            print('    [OK] pdmtool: BUILD.gn → ohos_prebuilt_executable')
+            count += 1
+        else:
+            print('    [SKIP] pdmtool: 已是 prebuilt 或不存在 ohos_executable')
+    else:
+        print(f'    [SKIP] pdmtool: 产物或 BUILD.gn 不存在')
+
+    return count
+
+
+# =============================================================================
 # 生成 partner apply_patches_sdk.sh
 # =============================================================================
 
@@ -1469,6 +1652,11 @@ def pack_tarball(ohos_root: Path, product: str, output_path: Path, dry_run: bool
         './vendor/open_source/alsa-lib/aserver/',
         # display 硬件测试代码（ohos_moduletest，不进设备镜像）
         './vendor/huanglong/ohos/hardware/graphics/display/source/test/',
+        # libteec_system 源码（无 BUILD.gn，不参与 OHOS5 编译）
+        './vendor/platform/libteec_system/',
+        # libteec_vendor/secure_c 源码（Phase 5.11 已改为预编译拷贝，源码不再需要）
+        './vendor/platform/libteec_vendor/source/',
+        './vendor/platform/secure_c/source/',
     )
     # GPU driver 目录只删 .c/.cpp，保留 .h（include 头文件）
     _GPU_DRV_PREFIX = './vendor/thirdparty/gpu/drv/'
@@ -1726,6 +1914,11 @@ def main():
     # ---- Phase 8.6: fix libuapi_frontend -> frontend_config.ini dep ----
     print("[Phase 8.6] fix libuapi_frontend frontend_config.ini dep...")
     fix_frontend_config_dep(ohos_root, dry_run)
+
+    # ---- Phase 5.11: TEE/secure_c 平台库改造为预编译拷贝 ----
+    print("\n[Phase 5.11] 将 platform 库改造为预编译拷贝 (libteec_vendor/secure_c/pdmtool)...")
+    tee_count = convert_platform_libs_to_prebuilt(ohos_root, out_dir, dry_run)
+    print(f"  已处理模块: {tee_count}")
 
     # 生成 partner apply_patches_sdk.sh
     common_patch_dir = ohos_root / 'common_patch'
