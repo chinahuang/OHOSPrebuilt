@@ -6,23 +6,27 @@ type: project
 
 ## 当前状态（2026-04-03）
 
-### ✅ v2 阶段完成 — 源码过滤 + 启动修复验证通过
+### ✅ v3 阶段完成 — 追加 alsa/display 测试源码过滤，验证通过
 
-**本阶段主要完成内容：**
+**本阶段（v2→v3）新增内容：**
+- `_SOURCE_EXCLUDE_PREFIXES` 追加 alsa-lib/modules、alsalisp、aserver（无 BUILD.gn，不参与编译）
+- 追加 display/source/test/（ohos_moduletest，不进设备镜像）
+- `sample/audio/` 保留（cast/ai/aenc 子目录使用 ohos_executable 源码编译，不可删）
 
+**累计完成（v2+v3）：**
 1. **修复 bootloader/kernel 启动失败**（Phase 7 动态 board 解析）
 2. **merge_sdk.py 新增 vendor 产品目录合并**
-3. **transform_sdk.py 新增源码过滤**（tar.gz 体积从 1.2GB → 943MB）
-4. **v2 合作伙伴验证编译全部通过**，关键镜像 md5 与供应商一致
+3. **transform_sdk.py 新增源码过滤**（tar.gz 1.2GB → 944MB，剩余 151 个 .c/.cpp 均编译必需）
+4. **v3 合作伙伴验证编译全部通过**，关键镜像 md5 与供应商一致
 
 ---
 
-### v2 验证结果（2026-04-03）
+### v3 验证结果（2026-04-03）
 
 | 步骤 | 730 | 735 |
 |------|-----|-----|
-| transform（源码过滤版）| ✅ 925MB | ✅ 901MB |
-| merge 合并 | ✅ 943MB | — |
+| transform v3 | ✅ 925MB | ✅ 901MB |
+| merge v3 | ✅ 944MB | — |
 | 分发到合作伙伴目录 | ✅ | ✅ |
 | apply | ✅ exit=0 | ✅ exit=0 |
 | build --patch | ✅ exit=0 | ✅ exit=0 |
