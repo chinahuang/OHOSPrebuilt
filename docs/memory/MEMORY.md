@@ -15,7 +15,7 @@
 - [project_build_workflow.md](project_build_workflow.md) — Build workflow：四套目录(OHOS2~5)分工、完整编译流程、apply脚本优化说明
 - [project_component_analysis.md](project_component_analysis.md) — 完整组件分析：各子系统/component 的 bundle.json 和 build.gn 路径及构建目标
 - [project_prebuilt_refactor.md](project_prebuilt_refactor.md) — 预编译分发改造需求：将 device/vendor 源码编译替换为 ohos_prebuilt_* 模式，供合作伙伴无源码编译产品
-- [project_validation_progress.md](project_validation_progress.md) — 当前验证进展：新环境(BUILD_SERVER/wuhan)重头执行供应商→合作伙伴全流程，当前在Step1(apply_patches_sdk.sh)
-- [project_prebuilts_cache.md](project_prebuilts_cache.md) — prebuilts共享缓存(/data/<user>/prebuilts_cache)：哨兵文件+symlink机制，避免每次apply重新下载4GB工具包
-- [project_boot_failure.md](project_boot_failure.md) — 合作伙伴镜像启动失败：dtbo/boot/sbl等被重新编译覆盖预编译产物，transform_sdk.py未覆盖bootloader/kernel目标转换
-- [prebuilt_work.md](prebuilt_work.md) — 操作日志（2026-03-31完成）：四阶段验证全部通过，单一tar.gz(1183.8MB)同时支持730/735，vendor/system内容完全一致；记录Bug P1-A/P1-B及修复；含标准部署流程
+- [project_validation_progress.md](project_validation_progress.md) — 当前验证进展：新环境重头执行供应商→合作伙伴全流程，当前在Step1(apply_patches_sdk.sh)
+- [project_prebuilts_cache.md](project_prebuilts_cache.md) — prebuilts共享缓存(<build_root>/prebuilts_cache)：哨兵文件+symlink机制，避免每次apply重新下载4GB工具包
+- [project_boot_failure.md](project_boot_failure.md) — 合作伙伴镜像启动失败：dtbo/boot/sbl等被重新编译覆盖预编译产物，transform_sdk.py Phase7 board硬编码bug，已修复（v2）
+- [prebuilt_work.md](prebuilt_work.md) — 操作日志（2026-04-03 v2完成）：源码过滤+启动修复验证通过，tar.gz 943MB，关键镜像730/735全部与供应商一致；下阶段：烧录验证+剩余21个测试源码清理+TEE prebuilt改造

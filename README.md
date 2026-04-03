@@ -7,14 +7,15 @@
 ```
 scripts/
   transform_sdk.py              # 核心转换脚本：供应商 out/ → 合作伙伴 tar.gz
+  merge_sdk.py                  # 多产品 tar.gz 合并脚本（730+735 → combined）
   apply_patches_sdk.sh          # 供应商侧 apply 脚本
   apply_patches_sdk_partner.sh  # 合作伙伴侧 apply 脚本（由 transform 生成）
 
 run_scripts/
-  run_vendor_730.sh             # OHOS3：供应商编译 730
-  run_vendor_735.sh             # OHOS4：供应商编译 735
-  run_partner_730.sh            # OHOS2：合作伙伴编译 730
-  run_partner_735.sh            # OHOS5：合作伙伴编译 735
+  run_vendor_730.sh             # 供应商编译 730
+  run_vendor_735.sh             # 供应商编译 735
+  run_partner_730.sh            # 合作伙伴编译 730
+  run_partner_735.sh            # 合作伙伴编译 735
 
 patches/
   custom-ohos-patch/            # 持久化的自定义 patch（build/device/developtools）
@@ -23,29 +24,42 @@ docs/
   memory/                       # 项目记忆文件（流程/checklist/bug历史）
 ```
 
-## 服务器环境（192.168.50.88）
+## 目录规划（参考）
 
 | 目录 | 角色 | 产品 |
 |------|------|------|
-| `/data/huanghao/OHOS3/ohos5` | 供应商编译 | mp_hi3781v730 |
-| `/data/huanghao/OHOS4/ohos5` | 供应商编译 | mp_hi3781v735 |
-| `/data/huanghao/OHOS2/ohos5` | 合作伙伴编译 | mp_hi3781v730 |
-| `/data/huanghao/OHOS5/ohos5` | 合作伙伴编译 | mp_hi3781v735 |
+| `<build_root>/OHOS3/ohos5` | 供应商编译 | mp_hi3781v730 |
+| `<build_root>/OHOS4/ohos5` | 供应商编译 | mp_hi3781v735 |
+| `<build_root>/OHOS2/ohos5` | 合作伙伴编译 | mp_hi3781v730 |
+| `<build_root>/OHOS5/ohos5` | 合作伙伴编译 | mp_hi3781v735 |
 
 ## 标准流程
 
-### 供应商侧
+### 供应商侧（以 730 为例）
 ```bash
-cd /data/huanghao/OHOS3/ohos5/common_patch && bash apply_patches_sdk.sh
-./build.sh --product-name mp_hi3781v730 --cache --patch
+cd <ohos_root>/common_patch && bash apply_patches_sdk.sh
+./build.sh --product-name mp_hi3781v730 --patch
 ./build.sh --product-name mp_hi3781v730 --cache
-python3 transform_sdk.py --product mp_hi3781v730
+python3 transform_sdk.py --product mp_hi3781v730 --ohos-root <ohos_root>
+```
+
+### 多产品合并
+```bash
+python3 merge_sdk.py \
+    --base  <730_tar.gz> \
+    --merge <735_tar.gz> \
+    --output R200X_combined_730_735.tar.gz
 ```
 
 ### 合作伙伴侧
 ```bash
-cd /data/huanghao/OHOS2/ohos5/common_patch && bash apply_patches_sdk_partner.sh
-./build.sh --product-name mp_hi3781v730 --cache --patch
+cd <ohos_root>/common_patch && bash apply_patches_sdk_partner.sh
+# 重建 node_modules symlink（apply 中 git clean -df 会删掉）
+ln -sfn <node_modules_cache>/ace_ets2bundle/node_modules \
+    <ohos_root>/developtools/ace_ets2bundle/compiler/node_modules
+ln -sfn <node_modules_cache>/ace_js2bundle/node_modules \
+    <ohos_root>/developtools/ace_js2bundle/ace-loader/node_modules
+./build.sh --product-name mp_hi3781v730 --patch
 ./build.sh --product-name mp_hi3781v730 --cache
 ```
 
@@ -57,5 +71,12 @@ cd /data/huanghao/OHOS2/ohos5/common_patch && bash apply_patches_sdk_partner.sh
 
 | 路径 | 内容 |
 |------|------|
-| `/data/huanghao/prebuilts_cache/` | 编译工具链（~4GB） |
-| `/data/huanghao/node_modules_cache/` | node_modules（~309MB） |
+| `<build_root>/prebuilts_cache/` | 编译工具链（~4GB） |
+| `<build_root>/node_modules_cache/` | node_modules（~309MB） |
+
+## 版本记录
+
+| 版本 | tar.gz 大小 | 说明 |
+|------|-------------|------|
+| v1 | ~1.2GB | 初始版本 |
+| v2 | ~943MB | 过滤不必要源码（u-boot/liteos/frameworks/av 等），修复 Phase 7 board 动态解析 |
