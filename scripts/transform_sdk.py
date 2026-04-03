@@ -1463,6 +1463,12 @@ def pack_tarball(ohos_root: Path, product: str, output_path: Path, dry_run: bool
         './vendor/open_source/mbedtls/tests/',
         './vendor/open_source/mbedtls/programs/',
         './vendor/open_source/mbedtls/3rdparty/',
+        # alsa-lib 工具程序源码（无 BUILD.gn，不参与编译）
+        './vendor/open_source/alsa-lib/modules/',
+        './vendor/open_source/alsa-lib/alsalisp/',
+        './vendor/open_source/alsa-lib/aserver/',
+        # display 硬件测试代码（ohos_moduletest，不进设备镜像）
+        './vendor/huanglong/ohos/hardware/graphics/display/source/test/',
     )
     # GPU driver 目录只删 .c/.cpp，保留 .h（include 头文件）
     _GPU_DRV_PREFIX = './vendor/thirdparty/gpu/drv/'
