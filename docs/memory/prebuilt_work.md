@@ -4,7 +4,45 @@ description: 逐步操作日志：每执行一步更新，下次对话先读此�
 type: project
 ---
 
-## 当前状态（2026-04-03）
+## 当前状态（2026-04-07）
+
+### ✅ v4 阶段完成 — libteec_vendor/secure_c/pdmtool 改造为预编译拷贝，验证通过
+
+**本阶段（v3→v4）Phase 5.11 新增内容：**
+- libteec_vendor：将 .so + teecd + tlogcat 从 out/ 拷贝到 `vendor/huanglong/binary/platform/libteec_vendor/ohos3.2/`，生成 prebuilt BUILD.gn + bundle.json，修改 product.gni 指向 prebuilt
+- secure_c：将 libuapi_securec.so 拷贝到 `binary/platform/secure_c/ohos3.2/`，修改 product.gni + bundle.json inner_kits
+- pdmtool：改写 `outer_vendor/tools/board/huanglong/pdm/BUILD.gn` 为 `ohos_prebuilt_executable`
+- 新增 `_SOURCE_EXCLUDE_PREFIXES`：`vendor/platform/libteec_vendor/source/` 和 `vendor/platform/secure_c/source/`
+- 修改 `device/soc/hisilicon/huanglong/BUILD.gn` build_teec group 指向 prebuilt 目标
+
+**关键路径说明：**
+- `binary_platform_dir`：`ohos5/device/soc/hisilicon/huanglong/vendor/huanglong/binary/platform/`（通过 symlink 指向 outer vendor，打包为 `./vendor/huanglong/binary/platform/`）
+- `$sdk_dir = "//device/soc/hisilicon/huanglong"`，所以 `$sdk_dir/vendor/huanglong/binary/platform/` 正好解析到上述路径
+
+**v4 验证结果（2026-04-07）**：
+
+| 步骤 | 730 | 735 |
+|------|-----|-----|
+| transform v4 | ✅ | ✅ |
+| merge v4 | ✅ 943MB | — |
+| apply | ✅ exit=0 | ✅ exit=0 |
+| build --patch | ✅ exit=0 | ✅ exit=0 |
+| build --cache | ✅ exit=0 | ✅ exit=0 |
+| trustedcore_d.img | ✅ 一致 | ✅ 一致 |
+| boot_d.img | ✅ 一致 | ✅ 一致 |
+| dtbo_d.img | ✅ 一致 | ✅ 一致 |
+
+**v4 归档位置**：服务器 `/data/<user>/erjinzhi/0403/archive_v4/`（scripts + 943MB tar.gz）
+**GitHub 提交**：`bfa6195`（fix: Phase 5.11 修复 libteec_vendor/secure_c 预编译路径和 GN 配置）
+
+**修复的 Bug（v4 调试过程）：**
+- binary_platform_dir 路径写错（inner vendor → device symlink → outer vendor）
+- `output_extension = "so"` 在 `ohos_prebuilt_shared_library` 中无效
+- `huanglong/bundle.json` inner_kits 仍引用 `secure_c/source`
+- `huanglong/BUILD.gn` `build_teec` group 仍引用 `libteec_vendor/source`（来自 board patch）
+- node_modules 被 `git clean -df` 清除（apply 脚本 NM_SRC 路径问题）
+
+---
 
 ### ✅ v3 阶段完成 — 追加 alsa/display 测试源码过滤，验证通过
 
