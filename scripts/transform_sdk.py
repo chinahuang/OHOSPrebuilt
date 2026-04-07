@@ -1230,7 +1230,7 @@ def convert_platform_libs_to_prebuilt(ohos_root: Path, out_dir: Path,
             os_name = m.group(1)
             break
 
-    binary_platform_dir = ohos_root / 'vendor' / 'huanglong' / 'binary' / 'platform'
+    binary_platform_dir = ohos_root / 'device' / 'soc' / 'hisilicon' / 'huanglong' / 'vendor' / 'huanglong' / 'binary' / 'platform'
 
     # ===== 1. libteec_vendor =====
     src_dir = out_dir / 'huanglong_products' / 'libteec_vendor'
@@ -1258,7 +1258,6 @@ def convert_platform_libs_to_prebuilt(ohos_root: Path, out_dir: Path,
                 '  part_name = "libteec_vendor"\n'
                 '  install_images = [ "vendor" ]\n'
                 '  source = "lib64/libteec_vendor.so"\n'
-                '  output_extension = "so"\n'
                 '}\n\n'
                 'ohos_prebuilt_executable("teecd") {\n'
                 '  part_name = "libteec_vendor"\n'
@@ -1308,7 +1307,6 @@ def convert_platform_libs_to_prebuilt(ohos_root: Path, out_dir: Path,
                 '  part_name = "libuapi_securec"\n'
                 '  install_images = [ "vendor" ]\n'
                 '  source = "lib64/libuapi_securec.so"\n'
-                '  output_extension = "so"\n'
                 '}\n'
             )
 
@@ -1337,6 +1335,20 @@ def convert_platform_libs_to_prebuilt(ohos_root: Path, out_dir: Path,
         count += 1
     else:
         print(f'    [SKIP] secure_c: 产物不存在，跳过 ({sec_so_src})')
+
+    # ===== 2b. device/soc/hisilicon/huanglong/bundle.json: secure_c inner_kits =====
+    # device bundle.json 中 inner_kits 仍引用 secure_c/source，需改为 prebuilt 路径。
+    huanglong_bundle = ohos_root / 'device' / 'soc' / 'hisilicon' / 'huanglong' / 'bundle.json'
+    if huanglong_bundle.exists():
+        text = huanglong_bundle.read_text()
+        old_inner = '"name": "//device/soc/hisilicon/huanglong/vendor/platform/secure_c/source:libuapi_securec"'
+        new_inner = f'"name": "//device/soc/hisilicon/huanglong/vendor/huanglong/binary/platform/secure_c/{os_name}:libuapi_securec"'
+        if old_inner in text and new_inner not in text:
+            if not dry_run:
+                huanglong_bundle.write_text(text.replace(old_inner, new_inner, 1))
+            print(f'    [FIX] huanglong/bundle.json secure_c inner_kits → prebuilt')
+        elif new_inner in text:
+            print(f'    [OK] huanglong/bundle.json secure_c inner_kits 已是 prebuilt')
 
     # ===== 3. pdmtool =====
     pdm_src = out_dir / 'huanglong_products' / 'pdmtool' / 'pdmtool'
@@ -1369,6 +1381,41 @@ def convert_platform_libs_to_prebuilt(ohos_root: Path, out_dir: Path,
             print('    [SKIP] pdmtool: 已是 prebuilt 或不存在 ohos_executable')
     else:
         print(f'    [SKIP] pdmtool: 产物或 BUILD.gn 不存在')
+
+    # ===== 4. device/soc/hisilicon/huanglong/BUILD.gn: build_teec group =====
+    # board patch 会在 BUILD.gn 中添加引用 libteec_vendor/source 的 build_teec group，
+    # 需将其改为指向 binary/platform prebuilt 目标。
+    huanglong_gn = ohos_root / 'device' / 'soc' / 'hisilicon' / 'huanglong' / 'BUILD.gn'
+    if huanglong_gn.exists():
+        text = huanglong_gn.read_text()
+        old_teec = (
+            'group("build_teec") {\n'
+            '  deps = [\n'
+            '    "$sdk_dir/vendor/platform/libteec_vendor/source:libteec_vendor",\n'
+            '    "$sdk_dir/vendor/platform/libteec_vendor/source:teecd",\n'
+            '    "$sdk_dir/vendor/platform/libteec_vendor/source:tlogcat",\n'
+            '    "$sdk_dir/vendor/platform/libteec_vendor/source:teecd_daemon.cfg",\n'
+            '  ]\n'
+            '}'
+        )
+        new_teec = (
+            f'group("build_teec") {{\n'
+            f'  deps = [\n'
+            f'    "$sdk_dir/vendor/huanglong/binary/platform/libteec_vendor/{os_name}:libteec_vendor",\n'
+            f'    "$sdk_dir/vendor/huanglong/binary/platform/libteec_vendor/{os_name}:teecd",\n'
+            f'    "$sdk_dir/vendor/huanglong/binary/platform/libteec_vendor/{os_name}:tlogcat",\n'
+            f'  ]\n'
+            f'}}'
+        )
+        if old_teec in text and new_teec not in text:
+            if not dry_run:
+                huanglong_gn.write_text(text.replace(old_teec, new_teec, 1))
+            print(f'    [FIX] huanglong/BUILD.gn build_teec → prebuilt')
+            count += 1
+        elif new_teec in text:
+            print(f'    [OK] huanglong/BUILD.gn build_teec 已是 prebuilt')
+        else:
+            print(f'    [SKIP] huanglong/BUILD.gn build_teec pattern not found')
 
     return count
 
