@@ -1519,14 +1519,13 @@ def generate_partner_apply_patches_sh(common_patch_dir: Path, output_path: Path,
     else:
         print("    [WARN] upgrade_sdk tar 命令与预期不符，请手动更新 partner 脚本中的 tar 提取命令")
 
-    # 7. apply_other_patches(): 注释掉所有 vendor_hisilicon/<product> 的 cp（已由 tar.gz 提供）
+    # 7. apply_other_patches(): 只注释 vendor_hisilicon/<mp_*> 的 cp（已由 tar.gz 提供）
+    #    保留 common_patch 等非产品目录的 cp（build.sh --patch 依赖这些 patch 文件）
     modified = re.sub(
-        r'(\n    )(cp -Rf \$PATCH_OTHER_DIR/vendor_hisilicon/\S+ \$OHOS_PATH/vendor/hisilicon/)',
+        r'(\n    )(cp -Rf \$PATCH_OTHER_DIR/vendor_hisilicon/mp_\S+ \$OHOS_PATH/vendor/hisilicon/)',
         r'\1# Partner SDK: product BUILD.gn 已预集成到 SDK 包中，跳过（避免覆盖预编译版本）\n\1# \2',
         modified
     )
-    if 'PATCH_OTHER_DIR/vendor_hisilicon/' in modified and '# cp -Rf $PATCH_OTHER_DIR' not in modified:
-        print(f"    [WARN] apply_other_patches 中 vendor_hisilicon cp 未被注释，请手动检查")
 
 
     # 8. 插入 fix_depsgard_hdi_whitelist() 函数和调用（修复 deps_guard HDI 白名单）
