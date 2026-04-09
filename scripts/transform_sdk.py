@@ -1704,6 +1704,18 @@ def pack_tarball(ohos_root: Path, product: str, output_path: Path, dry_run: bool
         # libteec_vendor/secure_c 源码（Phase 5.11 已改为预编译拷贝，源码不再需要）
         './vendor/platform/libteec_vendor/source/',
         './vendor/platform/secure_c/source/',
+        # pdmtool 源码（BUILD.gn 已改为 ohos_prebuilt_executable，源码无引用）
+        './vendor/tools/board/huanglong/pdm/pdmtool.c',
+        # mkbootargs 源码（目录内无 BUILD.gn，GN 编译不到）
+        './vendor/tools/host/huanglong/mkbootargs/mkbootargs.c',
+        # graphic hdi_backend 测试代码（不进设备镜像）
+        './vendor/huanglong/ohos/ohos5_ext/foundation/graphic/graphic_2d/rosen/modules/composer/hdi_backend/test/',
+        # sample/audio cast/ai/aenc 源码（无 bundle.json，不参与编译；binary 已由 ao/ prebuilt 覆盖）
+        './vendor/huanglong/sample/audio/cast/',
+        './vendor/huanglong/sample/audio/ai/',
+        './vendor/huanglong/sample/audio/aenc/',
+        './vendor/huanglong/sample/audio/adp_uapi_ext.c',
+        './vendor/huanglong/sample/audio/adp_ini_ext.c',
     )
     # GPU driver 目录只删 .c/.cpp，保留 .h（include 头文件）
     _GPU_DRV_PREFIX = './vendor/thirdparty/gpu/drv/'
