@@ -27,7 +27,7 @@ SSH 连接方式：`ssh -o StrictHostKeyChecking=no <user>@BUILD_SERVER`（已�
 ## 新环境（BUILD_SERVER）初始状态
 - ohos5 源码目录：`/home/<user>/OHOS/ohos5/`（干净，无 device/vendor）
 - common_patch 目录完整：`apply_patches_sdk.sh` / `custom-ohos-patch` / `custom-sdk-vendor-patch` / `other-patches` / `sdk-base-patch`
-- SDK 包：`/home/<user>/OHOS/ohos5/common_patch/R200X_V730R001C10SPC003TB020_Software_Ohos5_Base-package.tar.gz` 已存在
+- SDK 包：`/home/<user>/OHOS/ohos5/common_patch/<SDK_PKG>.tar.gz` 已存在
 - `transform_sdk.py` 已从旧环境拷贝到 `/home/<user>/OHOS/ohos5/transform_sdk.py` ✅
 - 磁盘：2TB，已用 860G，剩余 1.1T
 - 内存：125GB
@@ -67,7 +67,7 @@ cd /home/<user>/OHOS/ohos5
 cd /home/<user>/OHOS/ohos5
 python3 transform_sdk.py --product mp_hi3781v730
 ```
-- 产出1：`/home/<user>/OHOS/R200X_V730R001C10SPC003TB020_Software_Ohos5_Base-package.tar.gz`（partner SDK）
+- 产出1：`/home/<user>/OHOS/<SDK_PKG>.tar.gz`（partner SDK）
 - 产出2：`/home/<user>/OHOS/apply_patches_sdk_partner.sh`
 - 状态：待执行
 

@@ -82,11 +82,11 @@ grep 'git lfs pull' /data/<user>/OHOS5/ohos5/common_patch/apply_patches_sdk_part
 
 ```bash
 # OHOS2 (partner 730)
-ls -lh /data/<user>/OHOS2/ohos5/common_patch/R200X_V730R001C10SPC003TB020_Software_Ohos5_Base-package.tar.gz
+ls -lh /data/<user>/OHOS2/ohos5/common_patch/<SDK_PKG>.tar.gz
 ls -lh /data/<user>/OHOS2/ohos5/common_patch/apply_patches_sdk_partner.sh
 
 # OHOS5 (partner 735) - 同一份 tar.gz symlink
-ls -lh /data/<user>/OHOS5/ohos5/common_patch/R200X_V730R001C10SPC003TB020_Software_Ohos5_Base-package.tar.gz
+ls -lh /data/<user>/OHOS5/ohos5/common_patch/<SDK_PKG>.tar.gz
 ```
 
 **期望：** tar.gz 约 1183MB，apply_patches_sdk_partner.sh 约 9KB

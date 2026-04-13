@@ -6,7 +6,7 @@ type: project
 
 ## 核心方案
 
-用 GNI 变量 `prebuilt_board_dir` 替换 shared device BUILD.gn 中硬编码的 board 名，使同一 BUILD.gn 可被 730（wudangstick）和 735（shaolingun）同时使用。
+用 GNI 变量 `prebuilt_board_dir` 替换 shared device BUILD.gn 中硬编码的 board 名，使同一 BUILD.gn 可被 730（<board_730>）和 735（<board_735>）同时使用。
 
 **Why:** 合作伙伴希望一个 tar.gz 即可编译 730 和 735，原先每产品需单独 tar.gz。
 
@@ -28,7 +28,7 @@ type: project
 
 ## 生成合并 tar.gz 的操作流程
 
-**前提：** OHOS3 当前只有 735 build（out/shaolingun/）和 735 transform 结果；out/wudangstick/ 已被清理。
+**前提：** OHOS3 当前只有 735 build（out/<board_735>/）和 735 transform 结果；out/<board_730>/ 已被清理。
 
 ### Step 1：重建 730（already started 2026-03-25）
 ```bash
@@ -42,14 +42,14 @@ cd /home/<user>/OHOS3/ohos5
 ### Step 2：730 transform（只做 Phase 4+5，不打包）
 ```bash
 python3 transform_sdk.py --product mp_hi3781v730 --skip-pack
-# 产出：device/wudangstick/ (730预编译库) + vendor/hisilicon/mp_hi3781v730/ (预编译BUILD.gn)
+# 产出：device/<board_730>/ (730预编译库) + vendor/hisilicon/mp_hi3781v730/ (预编译BUILD.gn)
 ```
 
-### Step 3：从现有 735 tar.gz 补充 device/shaolingun 和 vendor/mp_hi3781v735
+### Step 3：从现有 735 tar.gz 补充 device/<board_735> 和 vendor/mp_hi3781v735
 ```bash
 cd /home/<user>/OHOS3
-tar -zxf R200X_V730R001C10SPC003TB020_Software_Ohos5_Base-package.tar.gz \
-    "./ohos5/device/shaolingun" \
+tar -zxf <SDK_PKG>.tar.gz \
+    "./ohos5/device/<board_735>" \
     "./ohos5/vendor/hisilicon/mp_hi3781v735"
 ```
 
@@ -76,7 +76,7 @@ bash apply_patches_sdk_partner.sh
 
 - `product.gni` 通过 `import("//vendor/${product_company}/${product_name}/product.gni")` 被 shared device BUILD.gn 引入，因此 `prebuilt_board_dir` 变量在共享 SoC BUILD.gn 中可用
 - partner 脚本提取 tar.gz 时会一次性展开两个产品的 vendor 目录，`hb set` 选择产品后即可对应编译
-- 合并 tar.gz 的 device/ 目录同时包含 device/wudangstick/ 和 device/shaolingun/ 两套预编译库
+- 合并 tar.gz 的 device/ 目录同时包含 device/<board_730>/ 和 device/<board_735>/ 两套预编译库
 
 ---
 

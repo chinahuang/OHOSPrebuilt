@@ -23,14 +23,14 @@ type: project
 
 ## 根本原因
 - partner tar.gz 中已包含正确的预编译文件（大小与 vendor 一致）：
-  - `ohos5/device/wudangstick/bootloader/sbl_d.bin` 等
-  - `ohos5/device/wudangstick/kernel/dtbo_d.img`（884624 bytes）
-- apply 脚本正确提取到 `device/wudangstick/` 目录
+  - `ohos5/device/<board_730>/bootloader/sbl_d.bin` 等
+  - `ohos5/device/<board_730>/kernel/dtbo_d.img`（884624 bytes）
+- apply 脚本正确提取到 `device/<board_730>/` 目录
 - 但 build 过程**重新从源码编译**了这些文件并覆盖了预编译产物
 - transform_sdk.py **未覆盖** bootloader/kernel 的构建目标转换
 
 ## 机制说明
-- 供应商：bootloader/kernel 由 sh 脚本编译，产出放入 `device/wudangstick/bootloader/` 和 `device/wudangstick/kernel/`
+- 供应商：bootloader/kernel 由 sh 脚本编译，产出放入 `device/<board_730>/bootloader/` 和 `device/<board_730>/kernel/`
 - 合作伙伴设计意图：编译动作替换为拷贝（copy 预编译），实际不执行编译
 - 当前问题：拷贝机制未生效，build 仍然触发了源码编译
 

@@ -6,11 +6,11 @@ type: project
 
 ## 产品基本信息
 - product_name: mp_hi3781v730
-- board: wudangstick (device_build_path: device/board/hisilicon/wudangstick)
+- board: <board_730> (device_build_path: device/board/hisilicon/<board_730>)
 - device_company: hisilicon
 - target_cpu: arm64
 - type: standard
-- SDK包: R200X_V730R001C10SPC003TB020_Software_Ohos5_Base-package.tar.gz
+- SDK包: <SDK_PKG>.tar.gz
 
 ## 子系统一览
 
@@ -103,7 +103,7 @@ type: project
 - resourceschedule/memmgr: hyperhold_memory=false
 
 ## product.gni 关键变量
-- soc_name = "wudangstick"
+- soc_name = "<board_730>"
 - sdk_dir = "//device/soc/hisilicon/huanglong"
 - common_dir = "//device/soc/hisilicon/common"
 - huanglong_uapi_dir = "$sdk_dir/vendor/huanglong/uapi"

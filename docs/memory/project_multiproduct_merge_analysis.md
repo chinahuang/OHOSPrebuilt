@@ -6,7 +6,7 @@ type: project
 
 ## 结论：不能直接合并，shared device/soc BUILD.gn 硬编码了 board 路径
 
-**Why:** 730（board=wudangstick）和 735（board=shaolingun）共用 `device/soc/hisilicon/huanglong/vendor/huanglong/` 目录。transform 后该目录下 BUILD.gn 的 prebuilt source 路径写死为当前 board 名，两次 transform 互相覆盖。当前 OHOS3 中 150 处引用是 shaolingun，仅 2 处是 wudangstick。
+**Why:** 730（board=<board_730>）和 735（board=<board_735>）共用 `device/soc/hisilicon/huanglong/vendor/huanglong/` 目录。transform 后该目录下 BUILD.gn 的 prebuilt source 路径写死为当前 board 名，两次 transform 互相覆盖。当前 OHOS3 中 150 处引用是 <board_735>，仅 2 处是 <board_730>。
 
 **How to apply:** 若讨论合并方案，需先解决 shared BUILD.gn board 路径硬编码问题，不可简单叠加两个 tar.gz。
 
@@ -17,8 +17,8 @@ type: project
 | `./vendor/` | 相同 | 相同 | 可以 |
 | `./ohos5/vendor/hisilicon/mp_hi3781v730/` | 有 | 无 | 可以（路径不同） |
 | `./ohos5/vendor/hisilicon/mp_hi3781v735/` | 无 | 有 | 可以（路径不同） |
-| `./ohos5/device/shaolingun/`（kernel/bootloader prebuilt） | 无 | 有 | 可以 |
-| `./ohos5/device/soc/hisilicon/.../BUILD.gn` | 写死 wudangstick | 写死 shaolingun | **冲突，互相覆盖** |
+| `./ohos5/device/<board_735>/`（kernel/bootloader prebuilt） | 无 | 有 | 可以 |
+| `./ohos5/device/soc/hisilicon/.../BUILD.gn` | 写死 <board_730> | 写死 <board_735> | **冲突，互相覆盖** |
 
 ## 要合并所需改动
 

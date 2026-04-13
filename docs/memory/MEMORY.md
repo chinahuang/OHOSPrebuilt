@@ -19,3 +19,4 @@
 - [project_prebuilts_cache.md](project_prebuilts_cache.md) — prebuilts共享缓存(<build_root>/prebuilts_cache)：哨兵文件+symlink机制，避免每次apply重新下载4GB工具包
 - [project_boot_failure.md](project_boot_failure.md) — 合作伙伴镜像启动失败：dtbo/boot/sbl等被重新编译覆盖预编译产物，transform_sdk.py Phase7 board硬编码bug，已修复（v2）
 - [prebuilt_work.md](prebuilt_work.md) — 操作日志（2026-04-03 v2完成）：源码过滤+启动修复验证通过，tar.gz 943MB，关键镜像730/735全部与供应商一致；下阶段：烧录验证+剩余21个测试源码清理+TEE prebuilt改造
+- [prebuilt_plan.md](prebuilt_plan.md) — 完整方案归档：完整方案概述(9 Phase)、供应商编译流程、合作伙伴编译流程细节、v5残留64个源码文件分析及不可删原因

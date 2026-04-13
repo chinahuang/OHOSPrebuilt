@@ -100,7 +100,7 @@ type: project
 ### 修复内容汇总（2026-04-03）
 
 **Bug Boot-1：bootloader/kernel 镜像不匹配导致启动失败**
-- 根因：transform_sdk.py Phase 7 生成脚本中 board 名称**硬编码**，730 transform 先跑写 wudangstick，735 transform 后跑覆盖为 shaolingun，partner 730 build 指向错误 board 目录 → 源码重编 → 镜像不一致
+- 根因：transform_sdk.py Phase 7 生成脚本中 board 名称**硬编码**，730 transform 先跑写 <board_730>，735 transform 后跑覆盖为 <board_735>，partner 730 build 指向错误 board 目录 → 源码重编 → 镜像不一致
 - 修复：`build_kernel.sh` 改为 `BOARD=$(basename "$2")`，`build_bootloader.sh` 改为 `BOARD=$(basename "$PRODUCT_OUT")`，运行时动态解析
 
 **merge_sdk.py 新增 vendor 产品目录自动合并**
@@ -175,7 +175,7 @@ B/D 类（不建议动）：
 | Phase 3 | 供应商 clean rebuild 735，合作伙伴用 Phase1 tar.gz rebuild 735，对比 out/ | ✅ 通过 |
 | Phase 4 | 根据 Phase2/3 差异修复，迭代至无差异 | ✅ 不需要（无内容差异）|
 
-**最终 tar.gz**：`R200X_V730R001C10SPC003TB020_Software_Ohos5_Base-package.tar.gz`（**1183.8 MB**）
+**最终 tar.gz**：`<SDK_PKG>.tar.gz`（**1183.8 MB**）
 
 **Phase 1 中发现并修复的问题**：
 - **Bug P1-A**：`0022-fix-display-composer-deps.patch` 符号链接路径问题 → 移出，transform Phase 8.5 代码处理

@@ -47,7 +47,7 @@ type: project
 ### 阶段一：读取产品配置（动态，无硬编码）
 ```python
 # 从 vendor/hisilicon/<product>/config.json 读取
-board    = product_config['board_name']    # 730→'wudangstick'
+board    = product_config['board_name']    # 730→'<board_730>'
 out_dir  = f'out/{board}'
 # 扫描根目录
 device_scan_roots = [
@@ -89,8 +89,8 @@ ohos_shared_library/executable/static_library → ohos_prebuilt_*
 ```python
 SOURCE_EXTS  = {'.c', '.cpp', '.cc', '.S', '.s', '.cxx'}
 KEEP_WHITELIST = {
-    'device/board/hisilicon/wudangstick/audio_alsa/vendor_capture.c',
-    'device/board/hisilicon/wudangstick/audio_alsa/vendor_render.c',
+    'device/board/hisilicon/<board_730>/audio_alsa/vendor_capture.c',
+    'device/board/hisilicon/<board_730>/audio_alsa/vendor_render.c',
 }
 ```
 
@@ -165,7 +165,7 @@ def pre_apply_device_patches(custom_ohos_patch_dir):
 
 ---
 
-## 已验证的产物清单（mp_hi3781v730，out/wudangstick/）
+## 已验证的产物清单（mp_hi3781v730，out/<board_730>/）
 
 ### huanglong_products 子系统
 - libuapi_*.so × 43（全部在 device_soc_huanglong/）
@@ -193,8 +193,8 @@ def pre_apply_device_patches(custom_ohos_patch_dir):
 - libbt_vendor.z.so（rtkbt_wifi/，target:libbt_vendor_rtk，output_name=libbt_vendor）
 
 ### Kernel & Bootloader（已验证存在）
-- boot_d.img、dtbo_d.img（out/wudangstick/packages/phone/images/）
-- eth_gmac.ko、rtk_btusb.ko、rtl8822cu.ko（out/wudangstick/obj/KERNEL_OBJ_D/...）
+- boot_d.img、dtbo_d.img（out/<board_730>/packages/phone/images/）
+- eth_gmac.ko、rtk_btusb.ko、rtl8822cu.ko（out/<board_730>/obj/KERNEL_OBJ_D/...）
 - fastboot_d.bin、slaveboot_d.bin、sbl_d.bin（packages/phone/images/）
 - programmer_d.bin：本产品不存在，跳过
 
